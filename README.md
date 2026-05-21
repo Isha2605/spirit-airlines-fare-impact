@@ -9,6 +9,10 @@
 
 ---
 
+![Dashboard Overview](dashboard%20screenshots/spirit-shutdown-case-study-dashboard_1.jpg)
+
+---
+
 ## The Story
 
 Spirit Airlines ceased operations on **May 2, 2026** — ending the run of the US's largest ultra-low-cost carrier. For millions of price-sensitive travelers on 20 key routes, the question was immediate: **how much would fares jump?**
