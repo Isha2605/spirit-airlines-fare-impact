@@ -15,7 +15,7 @@
 
 ## The Story
 
-Spirit Airlines ceased operations on **May 2, 2026** — ending the run of the US's largest ultra-low-cost carrier. For millions of price-sensitive travelers on 20 key routes, the question was immediate: **how much would fares jump?**
+Spirit Airlines ceased operations on **May 2, 2026** - ending the run of the US's largest ultra-low-cost carrier. For millions of price-sensitive travelers on 20 key routes, the question was immediate: **how much would fares jump?**
 
 This project answers that question with data.
 
@@ -30,7 +30,7 @@ This project answers that question with data.
 | Median fare change | **+12.4%** |
 | Routes with 30%+ increase | **5 routes** |
 | Hardest hit route | **DTW → MCO (+66.6%)** |
-| Passengers affected (Q1–Q2 2025) | **121,806** |
+| Passengers affected (Q1-Q2 2025) | **121,806** |
 | Primary replacement carrier | **Frontier (15/20 routes)** |
 
 > **The nuance:** Frontier undercut Spirit on several leisure routes (ATL-FLL dropped **72%**), but corporate/connecting routes saw brutal increases of up to **+67%**.
@@ -39,12 +39,12 @@ This project answers that question with data.
 
 ## Dashboard
 
-### Overview — KPIs, Fare Changes & Carrier Breakdown
+### Overview - KPIs, Fare Changes & Carrier Breakdown
 ![Dashboard Overview](dashboard%20screenshots/spirit-shutdown-case-study-dashboard_1.jpg)
 
 *KPI cards · Before vs. After bar chart for all 20 routes · Carrier pie chart (Frontier 75%) · Fare impact tier breakdown*
 
-### Counterfactual — What If JetBlue Had Merged With Spirit?
+### Counterfactual - What If JetBlue Had Merged With Spirit?
 ![Dashboard Counterfactual](dashboard%20screenshots/spirit-shutdown-case-study-dashboard_2.jpg)
 
 *Route-level table · 3-scenario comparison: Spirit baseline ($117) vs. JetBlue merger ($181, +54%) vs. Frontier actual ($127, +8%) · On 18/20 routes, Frontier ended up cheaper than JetBlue would have been*
@@ -84,7 +84,7 @@ This project answers that question with data.
 
 ```mermaid
 flowchart TD
-    A[BTS DB1B Market Survey\nQ1–Q2 2025] --> C[Filter: Spirit Airlines NK\n20 Busiest Routes]
+    A[BTS DB1B Market Survey\nQ1-Q2 2025] --> C[Filter: Spirit Airlines NK\n20 Busiest Routes]
     B[Google Flights Scrape\nMay 8, 2026] --> D[Extract Lowest Fare\nPer Route]
     C --> E[Calculate Avg Fare\nPer Route in Cents → Dollars]
     D --> F[Merge on Route Key]
@@ -168,7 +168,7 @@ pip install -r requirements.txt
 jupyter notebook notebooks/03_analysis.ipynb
 
 # 4. View dashboard
-# Open dashboard.html in any browser — no server needed
+# Open dashboard.html in any browser - no server needed
 ```
 
 ---
@@ -187,10 +187,10 @@ jupyter notebook notebooks/03_analysis.ipynb
 
 ## Insights
 
-1. **Frontier is the new Spirit** — it took over 15 of 20 routes but priced aggressively on leisure routes and higher on thin routes.
-2. **Leisure routes got cheaper** — ATL-FLL, IAH-FLL dropped 40–70% as Frontier undercut even Spirit's old fares.
-3. **Corporate/thin routes got crushed** — DTW-MCO, LAS-IAH, PHL-MCO all up 40–67% with no low-cost competition.
-4. **121,806 passengers affected** — the fare shifts represent a real income transfer from consumers to airlines on high-impact routes.
+1. **Frontier is the new Spirit** - it took over 15 of 20 routes but priced aggressively on leisure routes and higher on thin routes.
+2. **Leisure routes got cheaper** - ATL-FLL, IAH-FLL dropped 40-70% as Frontier undercut even Spirit's old fares.
+3. **Corporate/thin routes got crushed** - DTW-MCO, LAS-IAH, PHL-MCO all up 40-67% with no low-cost competition.
+4. **121,806 passengers affected** - the fare shifts represent a real income transfer from consumers to airlines on high-impact routes.
 
 ---
 
