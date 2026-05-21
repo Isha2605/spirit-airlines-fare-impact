@@ -35,20 +35,17 @@ This project answers that question with data.
 
 ## Dashboard
 
-<!-- Add screenshot of full dashboard here -->
-> *Screenshot: Open `dashboard.html` in a browser to explore interactively*
+### Overview — KPIs, Fare Changes & Carrier Breakdown
+![Dashboard Overview](dashboard%20screenshots/spirit-shutdown-case-study-dashboard_1.jpg)
 
-### KPI Cards
-<!-- Replace with actual screenshot -->
-![KPI Cards](dashboard%20screenshots/kpi_cards.png)
+*KPI cards · Before vs. After bar chart for all 20 routes · Carrier pie chart (Frontier 75%) · Fare impact tier breakdown*
 
-### Top Routes by Fare Impact
-<!-- Replace with actual screenshot -->
-![Fare Impact Chart](dashboard%20screenshots/fare_impact_chart.png)
+### Counterfactual — What If JetBlue Had Merged With Spirit?
+![Dashboard Counterfactual](dashboard%20screenshots/spirit-shutdown-case-study-dashboard_2.jpg)
 
-### Carrier Market Share
-<!-- Replace with actual screenshot -->
-![Carrier Chart](dashboard%20screenshots/carrier_chart.png)
+*Route-level table · 3-scenario comparison: Spirit baseline ($117) vs. JetBlue merger ($181, +54%) vs. Frontier actual ($127, +8%) · On 18/20 routes, Frontier ended up cheaper than JetBlue would have been*
+
+> Open `dashboard.html` in any browser to explore interactively.
 
 ---
 
