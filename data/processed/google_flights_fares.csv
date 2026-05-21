@@ -1,0 +1,21 @@
+Route,Origin,Destination,Search_Date,Travel_Date,Current_fare,Carrier
+Fort Lauderdale → New York,Fort Lauderdale, New York,"May 8th, 2026","June 15th, 2026",$99,Delta
+Fort Lauderdale → Chicago,Fort Lauderdale,Chicago,"May 8th, 2026","June 15th, 2026",$134,United
+Fort Lauderdale → Atlanta,Fort Lauderdale,Atlanta,"May 8th, 2026","June 15th, 2026",$56,Frontier
+Fort Lauderdale → Dallas,Fort Lauderdale,Dallas,"May 8th, 2026","June 15th, 2026",$147,Frontier
+Fort Lauderdale → Los Angeles,Fort Lauderdale,Los Angeles,"May 8th, 2026","June 15th, 2026",$153,JetBlue
+Orlando → New York,Orlando,New York,"May 8th, 2026","June 15th, 2026",$108,Frontier
+Orlando → Chicago,Orlando,Chicago,"May 8th, 2026","June 15th, 2026",$142,Frontier
+Orlando → Baltimore,Orlando,Baltimore,"May 8th, 2026","June 15th, 2026",$115,Frontier
+Las Vegas → Dallas,Las Vegas,Dallas,"May 8th, 2026","June 15th, 2026",$146,Frontier
+Las Vegas → Los Angeles,Las Vegas,Los Angeles,"May 8th, 2026","June 15th, 2026",$84,Frontier
+Las Vegas → Atlanta,Las Vegas,Atlanta,"May 8th, 2026","June 15th, 2026",$164,Frontier
+Las Vegas → Houston,Las Vegas,Houston,"May 8th, 2026","June 15th, 2026",$179,Frontier
+Houston → Fort Lauderdale,Houston,Fort Lauderdale,"May 8th, 2026","June 15th, 2026",$66,Frontier
+Houston → Orlando,Houston,Orlando,"May 8th, 2026","June 15th, 2026",$99,Frontier
+Detroit → Fort Lauderdale,Detroit,Fort Lauderdale,"May 8th, 2026","June 15th, 2026",$154,Delta
+Detroit → Orlando,Detroit,Orlando,"May 8th, 2026","June 15th, 2026",$217,Frontier
+Baltimore → Fort Lauderdale,Baltimore,Fort Lauderdale,"May 8th, 2026","June 15th, 2026",$148,Frontier
+Philadelphia → Orlando,Philadelphia,Orlando,"May 8th, 2026","June 15th, 2026",$153,Frontier
+Atlanta → Fort Lauderdale,Atlanta,Fort Lauderdale,"May 8th, 2026","June 15th, 2026",$26,Frontier
+Chicago → Fort Lauderdale,Chicago,Fort Lauderdale,"May 8th, 2026","June 15th, 2026",$149,United

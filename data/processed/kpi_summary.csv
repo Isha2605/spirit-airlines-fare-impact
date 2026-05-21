@@ -1,0 +1,15 @@
+metric,value
+Average Fare Increase (%),7.5%
+Median Fare Increase (%),12.4%
+Average Fare Increase ($),$9.54
+Routes Analyzed,20
+Routes with 30%+ Increase,5
+Routes with 20-30% Increase,4
+Routes with 10-20% Increase,2
+Routes with <10% Increase,9
+Highest Impact Route,DTW-MCO
+Highest Impact %,66.6%
+Total Passengers Affected (Q1-Q2),"121,806"
+Total Revenue Impact ($),"$719,056"
+Top Carrier Filling Gap,Frontier
+Top Carrier Route Count,15

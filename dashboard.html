@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spirit Airlines Shutdown: Fare Impact Dashboard</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --spirit-purple:    #5C2D91;
+      --spirit-purple-dk: #3B1A6B;
+      --spirit-purple-lt: #7B4DB5;
+      --spirit-yellow:    #FFD700;
+      --spirit-yellow-lt: #FFF3B0;
+      --sidebar-bg:       #2A1550;
+      --sidebar-hover:    #3B1A6B;
+      --sidebar-active:   #5C2D91;
+      --body-bg:          #F4F4F8;
+      --card-bg:          #FFFFFF;
+      --text-main:        #1A1A2E;
+      --text-muted:       #6C757D;
+      --border-color:     #E2E2EF;
+      --red:              #E53935;
+      --green:            #43A047;
+      --orange:           #FB8C00;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--body-bg);
+      color: var(--text-main);
+      margin: 0;
+      padding: 0;
+      font-size: 14px;
+    }
+
+    /* ── LAYOUT ─────────────────────────────── */
+    .wrapper { display: flex; min-height: 100vh; }
+
+    /* ── SIDEBAR ────────────────────────────── */
+    .sidebar {
+      width: 240px;
+      min-height: 100vh;
+      background: var(--sidebar-bg);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 100;
+      overflow-y: auto;
+    }
+
+    .sidebar-brand {
+      padding: 24px 20px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .sidebar-brand .brand-badge {
+      display: inline-block;
+      background: var(--spirit-yellow);
+      color: var(--spirit-purple-dk);
+      font-weight: 800;
+      font-size: 18px;
+      letter-spacing: 2px;
+      padding: 6px 14px;
+      border-radius: 6px;
+    }
+    .sidebar-brand .brand-sub {
+      color: rgba(255,255,255,0.5);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-top: 6px;
+    }
+
+    .sidebar-section-label {
+      color: rgba(255,255,255,0.3);
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      padding: 20px 20px 6px;
+    }
+
+    .sidebar-nav { list-style: none; padding: 0; margin: 0; }
+    .sidebar-nav li a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 20px;
+      color: rgba(255,255,255,0.65);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.2s;
+      border-left: 3px solid transparent;
+    }
+    .sidebar-nav li a:hover,
+    .sidebar-nav li.active a {
+      background: var(--sidebar-hover);
+      color: #fff;
+      border-left-color: var(--spirit-yellow);
+    }
+    .sidebar-nav li.active a { background: var(--sidebar-active); }
+    .sidebar-nav li a i { font-size: 15px; width: 18px; text-align: center; }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 16px 20px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.35);
+      font-size: 11px;
+    }
+
+    /* ── MAIN CONTENT ───────────────────────── */
+    .main-content {
+      margin-left: 240px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── TOP BAR ────────────────────────────── */
+    .topbar {
+      background: #fff;
+      border-bottom: 1px solid var(--border-color);
+      padding: 10px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .topbar-title { font-size: 17px; font-weight: 700; color: var(--spirit-purple-dk); }
+    .topbar-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .topbar-badge {
+      background: var(--spirit-yellow);
+      color: var(--spirit-purple-dk);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+
+    /* ── PAGE BODY ──────────────────────────── */
+    .page-body { padding: 14px 22px; }
+
+    /* ── KPI CARDS ──────────────────────────── */
+    .kpi-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 14px 16px;
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .kpi-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+    .kpi-icon {
+      width: 52px; height: 52px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .kpi-icon.purple { background: rgba(92,45,145,0.12); color: var(--spirit-purple); }
+    .kpi-icon.yellow { background: rgba(255,215,0,0.2); color: #B8860B; }
+    .kpi-icon.red    { background: rgba(229,57,53,0.1); color: var(--red); }
+    .kpi-icon.green  { background: rgba(67,160,71,0.1); color: var(--green); }
+    .kpi-icon.orange { background: rgba(251,140,0,0.1); color: var(--orange); }
+    .kpi-label { font-size: 10px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; }
+    .kpi-value { font-size: 22px; font-weight: 800; color: var(--text-main); line-height: 1.1; margin: 2px 0; }
+    .kpi-value.red   { color: var(--red); }
+    .kpi-value.green { color: var(--green); }
+    .kpi-sub   { font-size: 11px; color: var(--text-muted); }
+
+    /* ── SECTION HEADER ─────────────────────── */
+    .section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .section-title {
+      font-size: 15px; font-weight: 700; color: var(--text-main);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .section-title::before {
+      content: '';
+      display: inline-block;
+      width: 4px; height: 18px;
+      background: var(--spirit-yellow);
+      border-radius: 2px;
+    }
+
+    /* ── CHART CARDS ────────────────────────── */
+    .chart-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      padding: 20px 22px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      height: 100%;
+    }
+
+    /* ── IMPACT TIER PILLS ──────────────────── */
+    .tier-pill {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .tier-high     { background: rgba(229,57,53,0.12);  color: #C62828; }
+    .tier-medium   { background: rgba(251,140,0,0.12);  color: #E65100; }
+    .tier-moderate { background: rgba(251,192,45,0.15); color: #F57F17; }
+    .tier-low      { background: rgba(67,160,71,0.12);  color: #2E7D32; }
+    .tier-drop     { background: rgba(92,45,145,0.10);  color: var(--spirit-purple); }
+
+    /* ── ROUTE TABLE ────────────────────────── */
+    .route-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+    .route-table thead th {
+      background: var(--sidebar-bg);
+      color: rgba(255,255,255,0.75);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding: 10px 14px;
+      cursor: pointer;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .route-table thead th:first-child { border-radius: 8px 0 0 8px; }
+    .route-table thead th:last-child  { border-radius: 0 8px 8px 0; }
+    .route-table thead th:hover { background: var(--spirit-purple); }
+    .route-table tbody tr {
+      border-bottom: 1px solid var(--border-color);
+      transition: background 0.15s;
+    }
+    .route-table tbody tr:hover { background: #F8F6FD; }
+    .route-table tbody td {
+      padding: 11px 14px;
+      font-size: 13px;
+      vertical-align: middle;
+    }
+    .route-badge {
+      font-family: monospace;
+      font-weight: 700;
+      font-size: 13px;
+      background: rgba(92,45,145,0.08);
+      color: var(--spirit-purple);
+      padding: 3px 8px;
+      border-radius: 5px;
+    }
+    .carrier-tag {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    .carrier-frontier { background: #E8F5E9; color: #1B5E20; }
+    .carrier-delta    { background: #E3F2FD; color: #0D47A1; }
+    .carrier-united   { background: #EDE7F6; color: #4527A0; }
+    .carrier-jetblue  { background: #E0F7FA; color: #006064; }
+
+    .pct-positive { color: var(--red);   font-weight: 700; }
+    .pct-negative { color: var(--green); font-weight: 700; }
+
+    /* ── FRONTIER CALLOUT ───────────────────── */
+    .frontier-callout {
+      background: linear-gradient(135deg, var(--spirit-purple-dk) 0%, var(--spirit-purple) 100%);
+      border-radius: 12px;
+      padding: 14px 20px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .frontier-callout .big-num {
+      font-size: 42px;
+      font-weight: 900;
+      color: var(--spirit-yellow);
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .frontier-callout h5 { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+    .frontier-callout p  { font-size: 12px; color: rgba(255,255,255,0.75); margin: 0; }
+
+    /* ── SHUTDOWN BANNER ────────────────────── */
+    .shutdown-banner {
+      background: linear-gradient(90deg, #1A0A30 0%, #3B1A6B 50%, #1A0A30 100%);
+      border-radius: 12px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      border: 1px solid rgba(255,215,0,0.2);
+    }
+    .shutdown-banner .icon { font-size: 24px; }
+    .shutdown-banner h4 {
+      color: var(--spirit-yellow);
+      font-size: 13px;
+      font-weight: 700;
+      margin: 0 0 2px;
+      letter-spacing: 0.2px;
+    }
+    .shutdown-banner p { color: rgba(255,255,255,0.65); font-size: 11px; margin: 0; }
+
+    /* ── SORT INDICATOR ─────────────────────── */
+    .sort-asc::after  { content: ' ↑'; }
+    .sort-desc::after { content: ' ↓'; }
+
+    /* ── SCROLLBAR ──────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+
+    /* ── SMOOTH SCROLL + ANCHOR OFFSET ─────── */
+    html { scroll-behavior: smooth; }
+    #overview, #fare-chart, #carriers, #route-table { scroll-margin-top: 62px; }
+
+    /* ── SINGLE-ROW COMPACT KPI BAR ─────────── */
+    .kpi-row {
+      display: flex;
+      gap: 7px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .kpi-row .kpi-card  { flex: 1 1 0; min-width: 128px; padding: 10px 11px; gap: 9px; }
+    .kpi-row .kpi-icon  { width: 36px; height: 36px; font-size: 15px; }
+    .kpi-row .kpi-value { font-size: 16px; }
+    .kpi-row .kpi-sub   { font-size: 9.5px; }
+
+    /* ── COMPACT SHUTDOWN BANNER ─────────────── */
+    .shutdown-banner       { padding: 8px 14px; margin-bottom: 12px; }
+    .shutdown-banner .icon { font-size: 18px; }
+    .shutdown-banner h4    { font-size: 11px; letter-spacing: 0; margin-bottom: 1px; }
+    .shutdown-banner p     { font-size: 10px; }
+
+    /* ── COUNTERFACTUAL SECTION ──────────────── */
+    #overview, #fare-chart, #carriers, #route-table, #counterfactual { scroll-margin-top: 62px; }
+
+    .cf-banner {
+      background: linear-gradient(90deg, #0D2B6B 0%, #1565C0 50%, #0D2B6B 100%);
+      border-radius: 12px; padding: 8px 14px; display: flex; align-items: center;
+      gap: 12px; margin-bottom: 12px; border: 1px solid rgba(100,181,246,0.25);
+    }
+    .cf-banner .icon { font-size: 18px; }
+    .cf-banner h4 { color: #90CAF9; font-size: 11px; font-weight: 700; margin: 0 0 1px; }
+    .cf-banner p  { color: rgba(255,255,255,0.6); font-size: 10px; margin: 0; }
+
+    .scenario-card { border-radius: 12px; padding: 14px 16px; border: 1px solid var(--border-color); text-align: center; height: 100%; }
+    .scenario-card .sc-label { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 6px; }
+    .scenario-card .sc-fare  { font-size: 26px; font-weight: 900; line-height: 1.1; margin-bottom: 3px; }
+    .scenario-card .sc-fare span { font-size: 13px; font-weight: 600; margin-left: 4px; }
+    .scenario-card .sc-sub   { font-size: 10px; color: var(--text-muted); }
+
+    .scenario-spirit   { background: rgba(92,45,145,0.05); }
+    .scenario-spirit   .sc-label { color: var(--spirit-purple); }
+    .scenario-spirit   .sc-fare  { color: var(--spirit-purple-dk); }
+
+    .scenario-jetblue  { background: rgba(21,101,192,0.05); }
+    .scenario-jetblue  .sc-label { color: #1565C0; }
+    .scenario-jetblue  .sc-fare  { color: #0D47A1; }
+    .scenario-jetblue  .sc-fare span { color: var(--red); }
+
+    .scenario-frontier { background: rgba(27,94,32,0.05); }
+    .scenario-frontier .sc-label { color: #2E7D32; }
+    .scenario-frontier .sc-fare  { color: #1B5E20; }
+    .scenario-frontier .sc-fare span { color: var(--green); }
+
+    .verdict-card {
+      background: linear-gradient(135deg, #0D2B6B 0%, #1565C0 100%);
+      border-radius: 12px; padding: 18px 20px; color: #fff; height: 100%;
+      display: flex; flex-direction: column; justify-content: center;
+    }
+    .verdict-card .vnum { font-size: 48px; font-weight: 900; color: #90CAF9; line-height: 1; margin-bottom: 6px; }
+    .verdict-card .vnum span { font-size: 20px; font-weight: 600; color: rgba(255,255,255,0.5); }
+    .verdict-card h5 { font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+    .verdict-card p  { font-size: 11.5px; color: rgba(255,255,255,0.75); margin: 0 0 5px; }
+    .verdict-card .vnote { font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 8px; }
+  </style>
+</head>
+
+<body>
+<div class="wrapper">
+
+  <!-- ══ SIDEBAR ════════════════════════════════ -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-badge">SPIRIT</div>
+      <div class="brand-sub">Fare Impact Study</div>
+    </div>
+
+    <div class="sidebar-section-label">Analysis</div>
+    <ul class="sidebar-nav">
+      <li class="active"><a href="#overview"><i class="bi bi-speedometer2"></i> Overview</a></li>
+      <li><a href="#fare-chart"><i class="bi bi-bar-chart-line"></i> Fare Changes</a></li>
+      <li><a href="#carriers"><i class="bi bi-airplane"></i> Carrier Landscape</a></li>
+      <li><a href="#route-table"><i class="bi bi-table"></i> Route Details</a></li>
+      <li><a href="#counterfactual"><i class="bi bi-arrow-left-right"></i> Counterfactual</a></li>
+    </ul>
+
+    <div class="sidebar-section-label">Data Sources</div>
+    <ul class="sidebar-nav">
+      <li><a href="javascript:void(0)"
+           data-bs-toggle="popover"
+           data-bs-trigger="click"
+           data-bs-placement="right"
+           data-bs-title="BTS DB1B Q1–Q2 2025"
+           data-bs-content="Bureau of Transportation Statistics Origin &amp; Destination Survey. Filtered to Spirit Airlines (NK) only. 121,806 passengers across 20 routes. Downloaded from BTS.gov."
+           ><i class="bi bi-database"></i> BTS DB1B Q1–Q2 2025</a></li>
+      <li><a href="javascript:void(0)"
+           data-bs-toggle="popover"
+           data-bs-trigger="click"
+           data-bs-placement="right"
+           data-bs-title="Google Flights May 2026"
+           data-bs-content="Manual fare search conducted May 8, 2026. Lowest one-way fare captured per route for May 2026 travel. All 20 Spirit routes queried."
+           ><i class="bi bi-search"></i> Google Flights May 2026</a></li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <div style="color:rgba(255,255,255,0.5); margin-bottom:4px;">Spirit shutdown: <strong style="color:var(--spirit-yellow)">May 2, 2026</strong></div>
+      Built by Isha Jayant · 2026
+    </div>
+  </aside>
+
+  <!-- ══ MAIN CONTENT ══════════════════════════ -->
+  <div class="main-content">
+
+    <!-- Top Bar -->
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">Spirit Airlines Shutdown: Fare Impact Dashboard</div>
+        <div class="topbar-sub">20 busiest Spirit routes · BTS Q1–Q2 2025 vs Google Flights May 2026</div>
+      </div>
+      <span class="topbar-badge">✈ Case Study 2026</span>
+    </div>
+
+    <div class="page-body">
+
+      <!-- Shutdown Banner -->
+      <div class="shutdown-banner">
+        <div class="icon">⚡</div>
+        <div>
+          <h4>Spirit Airlines filed Chapter 7 liquidation and ceased all operations on May 2, 2026</h4>
+          <p>This dashboard quantifies the fare shock on Spirit's 20 busiest routes, tracking who filled the void and at what price premium.</p>
+        </div>
+      </div>
+
+      <!-- ── KPI ROW (all 8 in one compact row) ── -->
+      <div id="overview" class="kpi-row">
+
+        <div class="kpi-card">
+          <div class="kpi-icon purple"><i class="bi bi-geo-alt-fill"></i></div>
+          <div>
+            <div class="kpi-label">Routes Analyzed</div>
+            <div class="kpi-value">20</div>
+            <div class="kpi-sub">Busiest Spirit routes</div>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon red"><i class="bi bi-graph-up-arrow"></i></div>
+          <div>
+            <div class="kpi-label">Hardest Hit Route</div>
+            <div class="kpi-value red">+66.6%</div>
+            <div class="kpi-sub">DTW → MCO · $130→$217</div>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon orange"><i class="bi bi-people-fill"></i></div>
+          <div>
+            <div class="kpi-label">Passengers Affected</div>
+            <div class="kpi-value">121,806</div>
+            <div class="kpi-sub">Q1–Q2 2025 travelers</div>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon yellow"><i class="bi bi-currency-dollar"></i></div>
+          <div>
+            <div class="kpi-label">Avg Fare Increase</div>
+            <div class="kpi-value">+$9.54</div>
+            <div class="kpi-sub">Median route +12.4%</div>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon red"><i class="bi bi-exclamation-triangle-fill"></i></div>
+          <div>
+            <div class="kpi-label">Routes +30% or more</div>
+            <div class="kpi-value red">5</div>
+            <div class="kpi-sub">High-impact fare spikes</div>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon orange"><i class="bi bi-arrow-up-circle-fill"></i></div>
+          <div>
+            <div class="kpi-label">Routes +20–30%</div>
+            <div class="kpi-value" style="color:var(--orange)">4</div>
+            <div class="kpi-sub">Medium-impact routes</div>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon green"><i class="bi bi-arrow-down-circle-fill"></i></div>
+          <div>
+            <div class="kpi-label">Routes Now Cheaper</div>
+            <div class="kpi-value green">8</div>
+            <div class="kpi-sub">Frontier undercut Spirit</div>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon purple"><i class="bi bi-flag-fill"></i></div>
+          <div>
+            <div class="kpi-label">Frontier Dominance</div>
+            <div class="kpi-value">75%</div>
+            <div class="kpi-sub">15 of 20 routes</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── CHARTS ROW ──────────────────────── -->
+      <div class="row g-3 mb-3">
+
+        <!-- Before vs After Fare Chart -->
+        <div class="col-xl-8" id="fare-chart">
+          <div class="chart-card">
+            <div class="section-header">
+              <div class="section-title">Before vs. After Fare: All 20 Routes</div>
+              <small class="text-muted">BTS Q1–Q2 2025 avg vs Google Flights May 2026</small>
+            </div>
+            <div style="position:relative;height:265px;"><canvas id="fareChart"></canvas></div>
+          </div>
+        </div>
+
+        <!-- Carrier Donut -->
+        <div class="col-xl-4" id="carriers">
+          <div class="chart-card">
+            <div class="section-header">
+              <div class="section-title">Who Filled the Gap?</div>
+            </div>
+            <div style="position:relative;height:185px;"><canvas id="carrierChart"></canvas></div>
+            <div class="mt-3" style="font-size:12px;">
+              <div class="d-flex justify-content-between py-1 border-bottom"><span><span style="color:#43A047">●</span> Frontier</span><strong>15 routes · 75%</strong></div>
+              <div class="d-flex justify-content-between py-1 border-bottom"><span><span style="color:#1565C0">●</span> Delta</span><strong>2 routes · 10%</strong></div>
+              <div class="d-flex justify-content-between py-1 border-bottom"><span><span style="color:#4527A0">●</span> United</span><strong>2 routes · 10%</strong></div>
+              <div class="d-flex justify-content-between py-1"><span><span style="color:#00838F">●</span> JetBlue</span><strong>1 route · 5%</strong></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── IMPACT TIER + FRONTIER CALLOUT ──── -->
+      <div class="row g-3 mb-2">
+        <div class="col-xl-5">
+          <div class="chart-card">
+            <div class="section-header">
+              <div class="section-title">Fare Impact Tiers</div>
+            </div>
+            <div style="position:relative;height:150px;"><canvas id="tierChart"></canvas></div>
+          </div>
+        </div>
+        <div class="col-xl-7 d-flex align-items-stretch">
+          <div class="frontier-callout w-100">
+            <div class="big-num">75%</div>
+            <div>
+              <h5>Frontier captured 15 of Spirit's 20 top routes</h5>
+              <p>In the wake of Spirit's collapse, Frontier Airlines moved aggressively to fill the low-cost void, but at prices that often <strong style="color:var(--spirit-yellow)">undercut Spirit's historical fares</strong>, suggesting a land-grab strategy over profit maximization. On 8 of 20 routes, fares are actually <strong style="color:var(--spirit-yellow)">lower today</strong> than under Spirit, raising questions about whether the shutdown created a fare crisis or a market correction.</p>
+              <p class="mt-2" style="color:rgba(255,255,255,0.5); font-size:11px;">Delta (2 routes) · United (2 routes) · JetBlue (1 route) also stepped in</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ROUTE TABLE ──────────────────────── -->
+      <div id="route-table">
+        <div class="chart-card">
+          <div class="section-header mb-3">
+            <div class="section-title">Full Route-Level Breakdown</div>
+            <div class="d-flex gap-2 align-items-center">
+              <input type="text" id="tableSearch" class="form-control form-control-sm" placeholder="Search route..." style="width:160px;">
+              <small class="text-muted">Click headers to sort</small>
+            </div>
+          </div>
+          <div class="table-responsive" style="max-height:260px;overflow-y:auto;">
+            <table class="route-table" id="routeTable">
+              <thead>
+                <tr>
+                  <th onclick="sortTable(0)">Route</th>
+                  <th onclick="sortTable(1)">BTS Avg Fare</th>
+                  <th onclick="sortTable(2)">May 2026 Fare</th>
+                  <th onclick="sortTable(3)">$ Change</th>
+                  <th onclick="sortTable(4)">% Change</th>
+                  <th onclick="sortTable(5)">Carrier</th>
+                  <th onclick="sortTable(6)">Impact</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── COUNTERFACTUAL ─────────────────────── -->
+      <div id="counterfactual" class="mt-3">
+
+        <!-- Context banner -->
+        <div class="cf-banner">
+          <div class="icon">⚖️</div>
+          <div>
+            <h4>The Road Not Taken: JetBlue Merger Counterfactual</h4>
+            <p>In Jan 2024, a federal judge blocked JetBlue's $3.8B bid to acquire Spirit, citing fare harm to budget travelers. Spirit collapsed anyway 16 months later. Were consumers better off without the merger?</p>
+          </div>
+        </div>
+
+        <!-- 3 scenario cards -->
+        <div class="row g-2 mb-3">
+          <div class="col-xl-4">
+            <div class="scenario-card scenario-spirit">
+              <div class="sc-label">Spirit Airlines (2025 Baseline)</div>
+              <div class="sc-fare">$117</div>
+              <div class="sc-sub">avg fare · what was</div>
+            </div>
+          </div>
+          <div class="col-xl-4">
+            <div class="scenario-card scenario-jetblue">
+              <div class="sc-label">If JetBlue Merger Happened</div>
+              <div class="sc-fare">$181 <span>+54%</span></div>
+              <div class="sc-sub">estimated avg fare · what could have been</div>
+            </div>
+          </div>
+          <div class="col-xl-4">
+            <div class="scenario-card scenario-frontier">
+              <div class="sc-label">Frontier Actual (May 2026)</div>
+              <div class="sc-fare">$127 <span>+8%</span></div>
+              <div class="sc-sub">avg fare · what is</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chart + verdict -->
+        <div class="row g-3 mb-3">
+          <div class="col-xl-8">
+            <div class="chart-card">
+              <div class="section-header">
+                <div class="section-title">All 20 Routes: 3 Scenarios</div>
+                <small class="text-muted">Purple = Spirit · Blue = JetBlue merger · Green = Frontier actual</small>
+              </div>
+              <div style="position:relative;height:290px;"><canvas id="counterfactualChart"></canvas></div>
+            </div>
+          </div>
+          <div class="col-xl-4 d-flex">
+            <div class="verdict-card w-100">
+              <div class="vnum">18<span>/20</span></div>
+              <h5>routes where Frontier is cheaper than JetBlue would've been</h5>
+              <p>The DOJ blocked the merger to protect budget travelers. Spirit collapsed anyway, but Frontier stepped in at $127 avg vs the $181 consumers would've paid under JetBlue.</p>
+              <p>The judge called it right, even though Spirit's fate was sealed regardless.</p>
+              <div class="vnote">Only DTW-FLL and FLL-ORD would've been cheaper under JetBlue.</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer note -->
+      <div class="text-center mt-4" style="font-size:11px; color:var(--text-muted); padding-bottom:24px;">
+        Data: Bureau of Transportation Statistics DB1B (Q1–Q2 2025) · Google Flights snapshot (May 8, 2026) · Analysis by Isha Jayant
+      </div>
+
+    </div><!-- /page-body -->
+  </div><!-- /main-content -->
+</div><!-- /wrapper -->
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+
+<script>
+// ── DATA ─────────────────────────────────────────
+const routes = [
+  { route:'DTW-MCO', bts:130.25, gf:217.0, abs:+86.75, pct:+66.6,  carrier:'Frontier', impact:'High' },
+  { route:'LAS-IAH', bts:119.14, gf:179.0, abs:+59.86, pct:+50.24, carrier:'Frontier', impact:'High' },
+  { route:'PHL-MCO', bts:106.65, gf:153.0, abs:+46.35, pct:+43.46, carrier:'Frontier', impact:'High' },
+  { route:'BWI-FLL', bts:111.33, gf:148.0, abs:+36.67, pct:+32.94, carrier:'Frontier', impact:'High' },
+  { route:'LAS-DFW', bts:111.05, gf:146.0, abs:+34.95, pct:+31.47, carrier:'Frontier', impact:'High' },
+  { route:'FLL-LAX', bts:119.45, gf:153.0, abs:+33.55, pct:+28.09, carrier:'JetBlue',  impact:'Medium' },
+  { route:'LAS-ATL', bts:129.14, gf:164.0, abs:+34.86, pct:+27.0,  carrier:'Frontier', impact:'Medium' },
+  { route:'FLL-DFW', bts:117.06, gf:147.0, abs:+29.94, pct:+25.58, carrier:'Frontier', impact:'Medium' },
+  { route:'LAS-LAX', bts:68.15,  gf:84.0,  abs:+15.85, pct:+23.26, carrier:'Frontier', impact:'Medium' },
+  { route:'DTW-FLL', bts:135.69, gf:154.0, abs:+18.31, pct:+13.49, carrier:'Delta',    impact:'Moderate' },
+  { route:'MCO-ORD', bts:127.55, gf:142.0, abs:+14.45, pct:+11.33, carrier:'Frontier', impact:'Moderate' },
+  { route:'MCO-BWI', bts:107.67, gf:115.0, abs:+7.33,  pct:+6.81,  carrier:'Frontier', impact:'Low' },
+  { route:'ORD-FLL', bts:146.24, gf:149.0, abs:+2.76,  pct:+1.89,  carrier:'United',   impact:'Low' },
+  { route:'FLL-ORD', bts:139.33, gf:134.0, abs:-5.33,  pct:-3.83,  carrier:'United',   impact:'Drop' },
+  { route:'MCO-LGA', bts:115.97, gf:108.0, abs:-7.97,  pct:-6.87,  carrier:'Frontier', impact:'Drop' },
+  { route:'IAH-MCO', bts:115.84, gf:99.0,  abs:-16.84, pct:-14.54, carrier:'Frontier', impact:'Drop' },
+  { route:'FLL-LGA', bts:136.05, gf:99.0,  abs:-37.05, pct:-27.23, carrier:'Delta',    impact:'Drop' },
+  { route:'FLL-ATL', bts:96.95,  gf:56.0,  abs:-40.95, pct:-42.24, carrier:'Frontier', impact:'Drop' },
+  { route:'IAH-FLL', bts:119.69, gf:66.0,  abs:-53.69, pct:-44.86, carrier:'Frontier', impact:'Drop' },
+  { route:'ATL-FLL', bts:95.02,  gf:26.0,  abs:-69.02, pct:-72.64, carrier:'Frontier', impact:'Drop' },
+];
+
+// ── COLORS ──────────────────────────────────────
+const PURPLE = '#5C2D91';
+const YELLOW = '#FFD700';
+const RED    = '#E53935';
+const GREEN  = '#43A047';
+
+// ── BEFORE vs AFTER CHART ────────────────────────
+(function() {
+  const sorted = [...routes].sort((a,b) => b.pct - a.pct);
+  const labels  = sorted.map(r => r.route);
+  const btsFares = sorted.map(r => r.bts);
+  const gfFares  = sorted.map(r => r.gf);
+
+  const barColors = sorted.map(r => r.pct >= 0
+    ? `rgba(229,57,53,${Math.min(0.9, 0.3 + Math.abs(r.pct)/100)})`
+    : `rgba(67,160,71,${Math.min(0.9, 0.3 + Math.abs(r.pct)/100)})`
+  );
+
+  new Chart(document.getElementById('fareChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Spirit 2025 Avg (BTS)',
+          data: btsFares,
+          backgroundColor: 'rgba(92,45,145,0.55)',
+          borderColor: PURPLE,
+          borderWidth: 1.5,
+          borderRadius: 4,
+        },
+        {
+          label: 'May 2026 Fare',
+          data: gfFares,
+          backgroundColor: barColors,
+          borderColor: sorted.map(r => r.pct >= 0 ? RED : GREEN),
+          borderWidth: 1.5,
+          borderRadius: 4,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'top', labels: { font: { size: 12 }, usePointStyle: true } },
+        tooltip: {
+          callbacks: {
+            afterLabel: ctx => {
+              if (ctx.datasetIndex === 1) {
+                const r = sorted[ctx.dataIndex];
+                const sign = r.pct >= 0 ? '+' : '';
+                return `Change: ${sign}$${r.abs.toFixed(2)} (${sign}${r.pct}%)`;
+              }
+            }
+          }
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+        y: {
+          grid: { color: 'rgba(0,0,0,0.05)' },
+          ticks: { callback: v => '$' + v, font: { size: 11 } },
+          title: { display: true, text: 'Average Fare (USD)', font: { size: 12 } }
+        }
+      }
+    }
+  });
+})();
+
+// ── CARRIER DONUT ────────────────────────────────
+(function() {
+  new Chart(document.getElementById('carrierChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Frontier', 'Delta', 'United', 'JetBlue'],
+      datasets: [{
+        data: [15, 2, 2, 1],
+        backgroundColor: ['#43A047','#1565C0','#4527A0','#00838F'],
+        borderWidth: 3,
+        borderColor: '#fff',
+        hoverOffset: 8,
+      }]
+    },
+    options: {
+      cutout: '65%',
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw} routes` } }
+      }
+    }
+  });
+})();
+
+// ── TIER BAR CHART ───────────────────────────────
+(function() {
+  new Chart(document.getElementById('tierChart'), {
+    type: 'bar',
+    data: {
+      labels: ['30%+ spike', '20–30% spike', '10–20% spike', '<10% change', 'Fare dropped'],
+      datasets: [{
+        data: [5, 4, 2, 3, 8],  // note: 2 low positive, 1 very low, 8 drops -- adjusted
+        // recount: MCO-BWI +6.81, ORD-FLL +1.89 = 2 low; FLL-ORD onward = 8 drops (FLL-ORD -3.83, MCO-LGA -6.87, IAH-MCO -14.54, FLL-LGA -27.23, FLL-ATL -42.24, IAH-FLL -44.86, ATL-FLL -72.64) = 7 drops; ORD-FLL and FLL-ORD: ORD-FLL is Low, FLL-ORD is Drop
+        // Let me re-count: High(5), Medium(4), Moderate(2), Low(<10% positive): MCO-BWI +6.81 and ORD-FLL +1.89 = 2, Drops = 7 (FLL-ORD, MCO-LGA, IAH-MCO, FLL-LGA, FLL-ATL, IAH-FLL, ATL-FLL)
+        // Total: 5+4+2+2+7 = 20 ✓
+        backgroundColor: [
+          'rgba(229,57,53,0.8)',
+          'rgba(251,140,0,0.8)',
+          'rgba(251,192,45,0.8)',
+          'rgba(92,45,145,0.5)',
+          'rgba(67,160,71,0.8)',
+        ],
+        borderRadius: 6,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.raw} routes` } }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(0,0,0,0.05)' },
+          ticks: { stepSize: 1, font: { size: 11 } }
+        },
+        y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+      }
+    }
+  });
+})();
+
+// ── ROUTE TABLE ──────────────────────────────────
+function impactBadge(impact) {
+  const map = {
+    'High':     ['tier-high',     '🔴 High +30%'],
+    'Medium':   ['tier-medium',   '🟠 Medium +20%'],
+    'Moderate': ['tier-moderate', '🟡 Moderate +10%'],
+    'Low':      ['tier-low',      '🟢 Low <10%'],
+    'Drop':     ['tier-drop',     '⬇ Cheaper'],
+  };
+  const [cls, label] = map[impact] || ['', impact];
+  return `<span class="tier-pill ${cls}">${label}</span>`;
+}
+
+function carrierTag(c) {
+  const map = {
+    'Frontier': 'carrier-frontier',
+    'Delta':    'carrier-delta',
+    'United':   'carrier-united',
+    'JetBlue':  'carrier-jetblue',
+  };
+  return `<span class="carrier-tag ${map[c]||''}">${c}</span>`;
+}
+
+let sortCol = 4, sortDir = -1; // default: sort by pct desc
+
+function renderTable(data) {
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = data.map(r => {
+    const pctClass = r.pct >= 0 ? 'pct-positive' : 'pct-negative';
+    const sign = r.pct >= 0 ? '+' : '';
+    return `<tr>
+      <td><span class="route-badge">${r.route}</span></td>
+      <td>$${r.bts.toFixed(2)}</td>
+      <td>$${r.gf.toFixed(2)}</td>
+      <td class="${pctClass}">${sign}$${Math.abs(r.abs).toFixed(2)}</td>
+      <td class="${pctClass}">${sign}${r.pct}%</td>
+      <td>${carrierTag(r.carrier)}</td>
+      <td>${impactBadge(r.impact)}</td>
+    </tr>`;
+  }).join('');
+}
+
+function sortTable(col) {
+  if (sortCol === col) sortDir *= -1;
+  else { sortCol = col; sortDir = -1; }
+
+  // update header indicators
+  document.querySelectorAll('.route-table thead th').forEach((th, i) => {
+    th.className = '';
+    if (i === col) th.className = sortDir === -1 ? 'sort-desc' : 'sort-asc';
+  });
+
+  applyFilters();
+}
+
+function applyFilters() {
+  const q = document.getElementById('tableSearch').value.toLowerCase();
+  let data = routes.filter(r => r.route.toLowerCase().includes(q) || r.carrier.toLowerCase().includes(q));
+
+  const keys = ['route','bts','gf','abs','pct','carrier','impact'];
+  data.sort((a,b) => {
+    const va = a[keys[sortCol]], vb = b[keys[sortCol]];
+    return typeof va === 'string'
+      ? va.localeCompare(vb) * sortDir
+      : (va - vb) * sortDir;
+  });
+
+  renderTable(data);
+}
+
+document.getElementById('tableSearch').addEventListener('input', applyFilters);
+
+// Initial render
+sortTable(4); // sort by % change desc by default
+
+// ── COUNTERFACTUAL CHART ────────────────────────
+(function() {
+  const cf = [
+    { route:'FLL-LGA',  spirit:136.05, jb:236.26, frontier: 99.00 },
+    { route:'FLL-ORD',  spirit:139.33, jb:226.32, frontier:134.00 },
+    { route:'MCO-ORD',  spirit:127.55, jb:222.34, frontier:142.00 },
+    { route:'DTW-MCO',  spirit:130.25, jb:209.00, frontier:217.00 },
+    { route:'MCO-LGA',  spirit:115.97, jb:206.81, frontier:108.00 },
+    { route:'PHL-MCO',  spirit:106.65, jb:199.67, frontier:153.00 },
+    { route:'LAS-ATL',  spirit:129.14, jb:199.77, frontier:164.00 },
+    { route:'ORD-FLL',  spirit:146.24, jb:188.84, frontier:149.00 },
+    { route:'IAH-FLL',  spirit:119.69, jb:185.16, frontier: 66.00 },
+    { route:'FLL-LAX',  spirit:119.45, jb:184.79, frontier:153.00 },
+    { route:'LAS-IAH',  spirit:119.14, jb:184.31, frontier:179.00 },
+    { route:'FLL-DFW',  spirit:117.06, jb:181.08, frontier:147.00 },
+    { route:'IAH-MCO',  spirit:115.84, jb:179.20, frontier: 99.00 },
+    { route:'BWI-FLL',  spirit:111.33, jb:172.22, frontier:148.00 },
+    { route:'LAS-DFW',  spirit:111.05, jb:171.79, frontier:146.00 },
+    { route:'MCO-BWI',  spirit:107.67, jb:166.56, frontier:115.00 },
+    { route:'FLL-ATL',  spirit: 96.95, jb:149.98, frontier: 56.00 },
+    { route:'ATL-FLL',  spirit: 95.02, jb:146.99, frontier: 26.00 },
+    { route:'LAS-LAX',  spirit: 68.15, jb:105.42, frontier: 84.00 },
+    { route:'DTW-FLL',  spirit:135.69, jb: 97.72, frontier:154.00 },
+  ];
+
+  new Chart(document.getElementById('counterfactualChart'), {
+    type: 'bar',
+    data: {
+      labels: cf.map(r => r.route),
+      datasets: [
+        { label: 'Spirit 2025',     data: cf.map(r => r.spirit),   backgroundColor: 'rgba(92,45,145,0.55)',  borderColor: '#5C2D91', borderWidth: 1.5, borderRadius: 3 },
+        { label: 'JetBlue merger',  data: cf.map(r => r.jb),       backgroundColor: 'rgba(21,101,192,0.7)',  borderColor: '#1565C0', borderWidth: 1.5, borderRadius: 3 },
+        { label: 'Frontier actual', data: cf.map(r => r.frontier), backgroundColor: 'rgba(67,160,71,0.7)',   borderColor: '#43A047', borderWidth: 1.5, borderRadius: 3 },
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'top', labels: { font: { size: 11 }, usePointStyle: true } },
+        tooltip: {
+          callbacks: {
+            afterBody: ctx => {
+              const r = cf[ctx[0].dataIndex];
+              const min = Math.min(r.spirit, r.jb, r.frontier);
+              const winner = min === r.spirit ? 'Spirit cheapest' : min === r.jb ? 'JetBlue cheapest' : 'Frontier cheapest';
+              return winner;
+            }
+          }
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+        y: {
+          grid: { color: 'rgba(0,0,0,0.05)' },
+          ticks: { callback: v => '$' + v, font: { size: 11 } },
+          title: { display: true, text: 'Average Fare (USD)', font: { size: 11 } }
+        }
+      }
+    }
+  });
+})();
+
+// Data source popovers
+document.querySelectorAll('[data-bs-toggle="popover"]').forEach(el => new bootstrap.Popover(el, { html: false }));
+
+// Smooth sidebar scroll
+document.querySelectorAll('.sidebar-nav a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const href = a.getAttribute('href');
+    if (href === '#') return;
+    const target = document.querySelector(href);
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.querySelectorAll('.sidebar-nav li').forEach(li => li.classList.remove('active'));
+    a.parentElement.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

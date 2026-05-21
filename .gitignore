@@ -1,0 +1,21 @@
+# Virtual environment
+.venv/
+
+# Raw BTS data (too large for GitHub, 200MB+ CSVs)
+data/raw/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+*.code-workspace
