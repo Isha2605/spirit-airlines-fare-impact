@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Workplace Pulse — Office Utilization Analytics</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+
+<style>
+  :root {
+    --cbre-green: #006747;
+    --cbre-dark: #004030;
+    --cbre-light: #E8F5F0;
+    --cbre-accent: #00A878;
+    --cbre-gold: #C5A028;
+    --cbre-red: #D64045;
+    --sidebar-w: 260px;
+    --topbar-h: 64px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #F4F6F9;
+    color: #1A1A2E;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: var(--sidebar-w);
+    background: var(--cbre-dark);
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    display: flex;
+    flex-direction: column;
+    z-index: 200;
+    overflow-y: auto;
+  }
+
+  .sidebar-brand {
+    padding: 22px 20px 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .sidebar-brand .brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+  }
+  .brand-icon {
+    width: 38px; height: 38px;
+    background: var(--cbre-green);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; color: #fff;
+    flex-shrink: 0;
+  }
+  .brand-text {
+    display: flex; flex-direction: column;
+  }
+  .brand-name {
+    font-size: 15px; font-weight: 700; color: #fff; line-height: 1.2;
+  }
+  .brand-sub {
+    font-size: 10px; font-weight: 400; color: rgba(255,255,255,0.45);
+    text-transform: uppercase; letter-spacing: 0.8px;
+  }
+
+  .sidebar-section {
+    padding: 20px 12px 6px;
+  }
+  .sidebar-section-label {
+    font-size: 9.5px; font-weight: 600; color: rgba(255,255,255,0.3);
+    text-transform: uppercase; letter-spacing: 1.2px;
+    padding: 0 8px; margin-bottom: 6px;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px; border-radius: 8px;
+    color: rgba(255,255,255,0.65); font-size: 13.5px; font-weight: 500;
+    text-decoration: none; cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: 2px;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.06); color: #fff; }
+  .nav-item.active { background: var(--cbre-green); color: #fff; }
+  .nav-item i { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
+
+  .sidebar-footer {
+    margin-top: auto;
+    padding: 16px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  .data-badge {
+    background: rgba(0,167,120,0.15);
+    border: 1px solid rgba(0,167,120,0.3);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 11px; color: rgba(255,255,255,0.65);
+  }
+  .data-badge strong { color: var(--cbre-accent); display: block; margin-bottom: 2px; font-size: 11.5px; }
+
+  /* ── TOPBAR ── */
+  .topbar {
+    position: fixed;
+    top: 0; left: var(--sidebar-w); right: 0;
+    height: var(--topbar-h);
+    background: #fff;
+    border-bottom: 1px solid #E5E7EB;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 28px;
+    z-index: 100;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .topbar-left { display: flex; flex-direction: column; }
+  .topbar-title {
+    font-size: 17px; font-weight: 700; color: #111;
+    line-height: 1.2;
+  }
+  .topbar-sub {
+    font-size: 12px; color: #6B7280; font-weight: 400;
+  }
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+
+  .badge-live {
+    display: flex; align-items: center; gap: 6px;
+    background: #ECFDF5; border: 1px solid #6EE7B7;
+    border-radius: 20px; padding: 4px 12px;
+    font-size: 11.5px; font-weight: 600; color: var(--cbre-green);
+  }
+  .badge-live .dot {
+    width: 7px; height: 7px;
+    background: var(--cbre-green);
+    border-radius: 50%;
+    animation: pulse-dot 2s infinite;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; } 50% { opacity: 0.3; }
+  }
+
+  .topbar-meta {
+    font-size: 12px; color: #9CA3AF; font-weight: 400;
+  }
+
+  /* ── MAIN ── */
+  .main-content {
+    margin-left: var(--sidebar-w);
+    margin-top: var(--topbar-h);
+    padding: 28px;
+    width: calc(100% - var(--sidebar-w));
+    min-height: calc(100vh - var(--topbar-h));
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: #fff;
+    border: 1px solid #E9EDF2;
+    border-radius: 14px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+  }
+  .card-header-custom {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 22px 12px;
+    border-bottom: 1px solid #F3F4F6;
+  }
+  .card-title-custom {
+    font-size: 14px; font-weight: 700; color: #111;
+  }
+  .card-sub { font-size: 11.5px; color: #9CA3AF; margin-top: 1px; }
+  .card-body-custom { padding: 18px 22px 22px; }
+
+  /* ── KPI CARDS ── */
+  .kpi-card {
+    background: #fff;
+    border: 1px solid #E9EDF2;
+    border-radius: 14px;
+    padding: 20px 22px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
+
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--accent-color, var(--cbre-green));
+    border-radius: 14px 14px 0 0;
+  }
+  .kpi-icon-wrap {
+    width: 42px; height: 42px;
+    background: var(--icon-bg, #E8F5F0);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 19px;
+    color: var(--icon-color, var(--cbre-green));
+    margin-bottom: 14px;
+  }
+  .kpi-value {
+    font-size: 30px; font-weight: 800; color: #111;
+    line-height: 1; margin-bottom: 4px;
+  }
+  .kpi-label {
+    font-size: 12.5px; font-weight: 500; color: #6B7280; margin-bottom: 10px;
+  }
+  .kpi-delta {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 12px; font-weight: 600;
+    padding: 3px 9px; border-radius: 20px;
+  }
+  .kpi-delta.up { background: #ECFDF5; color: #059669; }
+  .kpi-delta.down { background: #FEF2F2; color: #DC2626; }
+  .kpi-delta.neutral { background: #F3F4F6; color: #6B7280; }
+
+  /* ── SECTION HEADER ── */
+  .section-header {
+    font-size: 12px; font-weight: 600;
+    color: #9CA3AF; text-transform: uppercase; letter-spacing: 1px;
+    margin-bottom: 14px; margin-top: 10px;
+  }
+
+  /* ── MARKET TABLE ── */
+  .market-table { width: 100%; border-collapse: collapse; }
+  .market-table th {
+    font-size: 11px; font-weight: 600; color: #9CA3AF;
+    text-transform: uppercase; letter-spacing: 0.6px;
+    padding: 8px 12px; text-align: left;
+    border-bottom: 1px solid #F3F4F6;
+  }
+  .market-table td {
+    padding: 10px 12px; font-size: 13px; color: #374151;
+    border-bottom: 1px solid #F9FAFB;
+    vertical-align: middle;
+  }
+  .market-table tr:last-child td { border-bottom: none; }
+  .market-table tr:hover td { background: #F9FAFB; }
+
+  .market-name { font-weight: 600; color: #111; }
+  .util-bar-wrap {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .util-bar-bg {
+    flex: 1; height: 6px;
+    background: #F3F4F6; border-radius: 3px; overflow: hidden;
+  }
+  .util-bar-fill {
+    height: 100%; border-radius: 3px;
+    transition: width 0.6s ease;
+  }
+  .util-pct { font-size: 12.5px; font-weight: 700; color: #111; min-width: 36px; text-align: right; }
+
+  .status-chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 20px;
+  }
+  .chip-hot { background: #ECFDF5; color: #059669; }
+  .chip-mid { background: #FEF9EC; color: #B45309; }
+  .chip-low { background: #FEF2F2; color: #DC2626; }
+
+  /* ── DOW HEATMAP ── */
+  .heatmap-grid {
+    display: grid;
+    grid-template-columns: 80px repeat(5, 1fr);
+    gap: 4px;
+    margin-top: 8px;
+  }
+  .heatmap-cell {
+    border-radius: 6px;
+    padding: 10px 4px;
+    text-align: center;
+    font-size: 12px; font-weight: 600;
+    transition: transform 0.1s;
+    cursor: default;
+  }
+  .heatmap-cell:hover { transform: scale(1.05); }
+  .heatmap-header {
+    background: transparent;
+    color: #9CA3AF; font-size: 11px; font-weight: 600;
+    padding: 6px 4px; text-align: center;
+  }
+  .heatmap-label {
+    font-size: 11px; font-weight: 500; color: #6B7280;
+    display: flex; align-items: center; padding: 10px 8px;
+    border-radius: 6px;
+  }
+
+  /* ── INSIGHT PANEL ── */
+  .insight-panel {
+    background: linear-gradient(135deg, var(--cbre-dark) 0%, var(--cbre-green) 100%);
+    border-radius: 14px;
+    padding: 24px;
+    color: #fff;
+  }
+  .insight-panel h5 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+  .insight-panel p { font-size: 13px; color: rgba(255,255,255,0.75); line-height: 1.6; margin-bottom: 0; }
+  .insight-stat {
+    font-size: 32px; font-weight: 800; color: #fff;
+    margin: 10px 0 4px;
+  }
+  .insight-stat span { font-size: 16px; font-weight: 400; color: rgba(255,255,255,0.6); }
+
+  .insight-list {
+    list-style: none; padding: 0; margin: 14px 0 0;
+  }
+  .insight-list li {
+    display: flex; align-items: flex-start; gap: 8px;
+    font-size: 12.5px; color: rgba(255,255,255,0.8);
+    margin-bottom: 8px; line-height: 1.5;
+  }
+  .insight-list li i { color: #6EE7B7; flex-shrink: 0; margin-top: 2px; }
+
+  /* ── PORTFOLIO TAG ── */
+  .portfolio-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #F3F4F6;
+  }
+  .portfolio-row:last-child { border-bottom: none; }
+  .rec-badge {
+    font-size: 10.5px; font-weight: 600; padding: 3px 10px; border-radius: 20px;
+    white-space: nowrap;
+  }
+  .rec-expand { background: #ECFDF5; color: #059669; }
+  .rec-hold { background: #EFF6FF; color: #2563EB; }
+  .rec-consolidate { background: #FEF2F2; color: #DC2626; }
+  .rec-watch { background: #FEF9EC; color: #B45309; }
+
+  /* footer */
+  .page-footer {
+    margin-top: 28px; padding: 18px 0;
+    border-top: 1px solid #E5E7EB;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 8px;
+  }
+  .footer-left { font-size: 12px; color: #9CA3AF; }
+  .footer-left strong { color: #6B7280; }
+  .footer-right { display: flex; gap: 16px; }
+  .footer-link { font-size: 12px; color: var(--cbre-green); text-decoration: none; font-weight: 500; }
+  .footer-link:hover { text-decoration: underline; }
+
+  /* chart containers */
+  .chart-wrap { position: relative; }
+</style>
+</head>
+
+<body>
+
+<!-- ════════════════ SIDEBAR ════════════════ -->
+<nav class="sidebar">
+  <div class="sidebar-brand">
+    <a class="brand-logo" href="#">
+      <div class="brand-icon"><i class="bi bi-buildings"></i></div>
+      <div class="brand-text">
+        <span class="brand-name">WorkplacePulse</span>
+        <span class="brand-sub">Office Intelligence</span>
+      </div>
+    </a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Analytics</div>
+    <a class="nav-item active" href="#"><i class="bi bi-speedometer2"></i> Overview</a>
+    <a class="nav-item" href="#"><i class="bi bi-geo-alt"></i> Markets</a>
+    <a class="nav-item" href="#"><i class="bi bi-calendar3"></i> Day-of-Week</a>
+    <a class="nav-item" href="#"><i class="bi bi-graph-up-arrow"></i> Trends</a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Portfolio</div>
+    <a class="nav-item" href="#"><i class="bi bi-building"></i> Properties</a>
+    <a class="nav-item" href="#"><i class="bi bi-pie-chart"></i> Utilization Mix</a>
+    <a class="nav-item" href="#"><i class="bi bi-lightning"></i> Recommendations</a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Data</div>
+    <a class="nav-item" href="#"><i class="bi bi-database"></i> Sources</a>
+    <a class="nav-item" href="#"><i class="bi bi-download"></i> Export</a>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="data-badge">
+      <strong><i class="bi bi-shield-check me-1"></i> Data Sources</strong>
+      Kastle Back-to-Work Barometer &amp; CBRE Occupancy Insights 2024–2026
+    </div>
+  </div>
+</nav>
+
+<!-- ════════════════ TOPBAR ════════════════ -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-title">Office Utilization Dashboard</div>
+    <div class="topbar-sub">National portfolio overview · 10 markets · Weekly badge-swipe data</div>
+  </div>
+  <div class="topbar-right">
+    <div class="badge-live"><div class="dot"></div> Week of May 12, 2026</div>
+    <div class="topbar-meta"><i class="bi bi-arrow-clockwise me-1"></i>Updated weekly</div>
+  </div>
+</div>
+
+<!-- ════════════════ MAIN CONTENT ════════════════ -->
+<main class="main-content">
+
+  <!-- KPI ROW -->
+  <div class="section-header">Key Performance Indicators</div>
+  <div class="row g-3 mb-4">
+
+    <div class="col-md-3">
+      <div class="kpi-card" style="--accent-color:#006747; --icon-bg:#E8F5F0; --icon-color:#006747">
+        <div class="kpi-icon-wrap"><i class="bi bi-people-fill"></i></div>
+        <div class="kpi-value">52.4%</div>
+        <div class="kpi-label">National Avg Occupancy</div>
+        <span class="kpi-delta up"><i class="bi bi-arrow-up"></i> +4.1 pp YoY</span>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="kpi-card" style="--accent-color:#C5A028; --icon-bg:#FEF9EC; --icon-color:#C5A028">
+        <div class="kpi-icon-wrap"><i class="bi bi-calendar-check"></i></div>
+        <div class="kpi-value">Wednesday</div>
+        <div class="kpi-label">Peak Utilization Day</div>
+        <span class="kpi-delta neutral"><i class="bi bi-dash"></i> 64.7% avg</span>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="kpi-card" style="--accent-color:#00A878; --icon-bg:#E8FAF5; --icon-color:#00A878">
+        <div class="kpi-icon-wrap"><i class="bi bi-building-up"></i></div>
+        <div class="kpi-value">3 / 10</div>
+        <div class="kpi-label">Markets Above 60% Threshold</div>
+        <span class="kpi-delta up"><i class="bi bi-arrow-up"></i> +1 vs Q4 2025</span>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="kpi-card" style="--accent-color:#D64045; --icon-bg:#FEF2F2; --icon-color:#D64045">
+        <div class="kpi-icon-wrap"><i class="bi bi-exclamation-triangle"></i></div>
+        <div class="kpi-value">2 / 10</div>
+        <div class="kpi-label">Markets Below 40% (At Risk)</div>
+        <span class="kpi-delta down"><i class="bi bi-arrow-down"></i> SF &amp; San Jose</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ROW 2: Trend Chart + Market Table -->
+  <div class="row g-3 mb-4">
+
+    <!-- Trend Line Chart -->
+    <div class="col-lg-8">
+      <div class="card h-100">
+        <div class="card-header-custom">
+          <div>
+            <div class="card-title-custom">Occupancy Trend by Market</div>
+            <div class="card-sub">Monthly avg badge-swipe rate · Jan 2024 – May 2026</div>
+          </div>
+          <div class="badge-live" style="font-size:11px"><div class="dot"></div> Live</div>
+        </div>
+        <div class="card-body-custom chart-wrap" style="height:300px">
+          <canvas id="trendChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Market Rankings -->
+    <div class="col-lg-4">
+      <div class="card h-100">
+        <div class="card-header-custom">
+          <div>
+            <div class="card-title-custom">Market Rankings</div>
+            <div class="card-sub">Current week utilization</div>
+          </div>
+        </div>
+        <div class="card-body-custom" style="padding-top:10px">
+          <table class="market-table">
+            <thead>
+              <tr>
+                <th>Market</th>
+                <th>Utilization</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="marketTableBody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ROW 3: DoW Heatmap + Bar Chart -->
+  <div class="row g-3 mb-4">
+
+    <!-- Day-of-Week Heatmap -->
+    <div class="col-lg-7">
+      <div class="card h-100">
+        <div class="card-header-custom">
+          <div>
+            <div class="card-title-custom">Day-of-Week Utilization Heatmap</div>
+            <div class="card-sub">% occupancy by market × weekday · May 2026</div>
+          </div>
+        </div>
+        <div class="card-body-custom">
+          <div class="heatmap-grid" id="heatmapGrid"></div>
+          <div class="d-flex align-items-center gap-3 mt-3" style="font-size:11px; color:#9CA3AF">
+            <div class="d-flex align-items-center gap-2">
+              <div style="width:30px;height:10px;border-radius:3px;background:#dcfce7"></div><span>Low (&lt;40%)</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <div style="width:30px;height:10px;border-radius:3px;background:#86efac"></div><span>Mid (40–55%)</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <div style="width:30px;height:10px;border-radius:3px;background:#22c55e"></div><span>High (55–70%)</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <div style="width:30px;height:10px;border-radius:3px;background:#15803d"></div><span>Peak (&gt;70%)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bar Chart current utilization -->
+    <div class="col-lg-5">
+      <div class="card h-100">
+        <div class="card-header-custom">
+          <div>
+            <div class="card-title-custom">Current Utilization by Market</div>
+            <div class="card-sub">Week of May 12, 2026</div>
+          </div>
+        </div>
+        <div class="card-body-custom chart-wrap" style="height:280px">
+          <canvas id="barChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ROW 4: Insight Panel + Portfolio Recs -->
+  <div class="row g-3 mb-4">
+
+    <!-- Insight Panel -->
+    <div class="col-lg-5">
+      <div class="insight-panel h-100">
+        <h5><i class="bi bi-lightbulb me-2"></i>Portfolio Insight</h5>
+        <div class="insight-stat">Tue–Thu <span>captures 78%</span></div>
+        <p>of all weekly office visits. Mon &amp; Fri remain structurally low — averaging 38% and 28% respectively — suggesting portfolio lease optimization opportunity.</p>
+        <ul class="insight-list mt-3">
+          <li><i class="bi bi-check-circle-fill"></i>Sun Belt markets (Austin, Dallas, Houston) outperform coastal peers by 15–25 pp — RTO momentum is geographically bifurcated.</li>
+          <li><i class="bi bi-check-circle-fill"></i>SF &amp; San Jose remain outliers at &lt;40%, driven by tech-sector remote policy. Lease exposure here carries concentration risk.</li>
+          <li><i class="bi bi-check-circle-fill"></i>National trend is up +4.1 pp YoY. At current trajectory, national avg could cross 55% threshold by Q3 2026.</li>
+          <li><i class="bi bi-check-circle-fill"></i>Mid-week peak hours (10am–3pm Tue–Thu) suggest flex-desk configs can serve 1.8× headcount at 55% utilization.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Portfolio Recommendations -->
+    <div class="col-lg-7">
+      <div class="card h-100">
+        <div class="card-header-custom">
+          <div>
+            <div class="card-title-custom">Portfolio Optimization Signals</div>
+            <div class="card-sub">Data-driven lease &amp; space recommendations per market</div>
+          </div>
+        </div>
+        <div class="card-body-custom">
+          <div id="portfolioRecs"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ROW 5: YoY Change Chart -->
+  <div class="row g-3 mb-2">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header-custom">
+          <div>
+            <div class="card-title-custom">Year-over-Year Occupancy Change by Market</div>
+            <div class="card-sub">Percentage point change · May 2025 → May 2026 · Positive = recovery, Negative = contraction</div>
+          </div>
+        </div>
+        <div class="card-body-custom chart-wrap" style="height:240px">
+          <canvas id="yoyChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="page-footer">
+    <div class="footer-left">
+      Built by <strong>Isha Narkhede</strong> · Data: Kastle Systems Back-to-Work Barometer, CBRE Occupancy Insights ·
+      Methodology: weekly badge-swipe rates across 10 major US markets
+    </div>
+    <div class="footer-right">
+      <a class="footer-link" href="#"><i class="bi bi-github me-1"></i>GitHub</a>
+      <a class="footer-link" href="#"><i class="bi bi-linkedin me-1"></i>LinkedIn</a>
+    </div>
+  </div>
+
+</main>
+
+<!-- ════════════════ SCRIPTS ════════════════ -->
+<script>
+
+// ── DATA ──────────────────────────────────────────────────────────────────
+
+const MARKETS = [
+  { city: "Austin",       current: 67.3, prev: 61.2, yoy: +6.1  },
+  { city: "Dallas",       current: 61.8, prev: 57.4, yoy: +4.4  },
+  { city: "Houston",      current: 58.9, prev: 54.1, yoy: +4.8  },
+  { city: "Chicago",      current: 53.4, prev: 50.2, yoy: +3.2  },
+  { city: "New York",     current: 52.1, prev: 48.9, yoy: +3.2  },
+  { city: "Philadelphia", current: 48.6, prev: 45.7, yoy: +2.9  },
+  { city: "Washington DC",current: 45.2, prev: 43.8, yoy: +1.4  },
+  { city: "Los Angeles",  current: 41.7, prev: 43.1, yoy: -1.4  },
+  { city: "San Jose",     current: 38.4, prev: 40.2, yoy: -1.8  },
+  { city: "San Francisco",current: 36.9, prev: 38.5, yoy: -1.6  },
+];
+
+// Monthly trend data Jan 2024 – May 2026 (29 months)
+// Selected markets for readability
+const MONTHS = [
+  "Jan '24","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec '24",
+  "Jan '25","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec '25",
+  "Jan '26","Feb","Mar","Apr","May '26"
+];
+
+const TREND_DATA = {
+  "Austin":       [55,57,59,61,62,63,61,62,63,64,65,64, 60,62,64,64,65,66,64,65,66,67,67,66, 65,66,67,67,67],
+  "New York":     [40,42,44,46,47,48,46,47,48,49,50,48, 46,47,48,49,50,50,48,49,50,51,52,50, 50,51,52,52,52],
+  "San Francisco":[32,33,34,35,36,37,35,36,37,37,38,37, 36,37,38,38,38,39,37,38,38,39,39,38, 37,37,38,37,37],
+  "Chicago":      [42,44,46,48,49,50,48,49,50,51,52,51, 49,50,51,52,52,53,51,52,53,53,54,53, 52,53,53,54,53],
+};
+
+// DoW heatmap data [Mon, Tue, Wed, Thu, Fri]
+const DOW_DATA = {
+  "Austin":        [55, 74, 78, 71, 42],
+  "Dallas":        [50, 69, 73, 65, 38],
+  "Houston":       [47, 66, 70, 63, 36],
+  "Chicago":       [41, 61, 65, 58, 32],
+  "New York":      [40, 59, 64, 57, 30],
+  "Philadelphia":  [37, 56, 60, 53, 28],
+  "Washington DC": [34, 52, 56, 49, 25],
+  "Los Angeles":   [32, 49, 52, 46, 23],
+  "San Jose":      [29, 44, 48, 42, 20],
+  "San Francisco": [28, 42, 46, 40, 18],
+};
+
+const PORTFOLIO_RECS = [
+  { city:"Austin",        sqft:"120k sqft",  util:"67.3%", action:"Expand",      cls:"rec-expand",      note:"Demand exceeds capacity. Explore adjacent lease or flex-desk expansion." },
+  { city:"Dallas",        sqft:"95k sqft",   util:"61.8%", action:"Expand",      cls:"rec-expand",      note:"Strong momentum. Lock renewal terms before Q4 rate increase window." },
+  { city:"Houston",       sqft:"80k sqft",   util:"58.9%", action:"Hold",        cls:"rec-hold",        note:"Stable at target range. Monitor for Q3 utilization inflection." },
+  { city:"Chicago",       sqft:"140k sqft",  util:"53.4%", action:"Hold",        cls:"rec-hold",        note:"On upward trend. Consider hoteling ratio adjustment to 1.6:1." },
+  { city:"New York",      sqft:"200k sqft",  util:"52.1%", action:"Watch",       cls:"rec-watch",       note:"Below target but strategic. Renewal due H1 2027 — renegotiate terms." },
+  { city:"Washington DC", sqft:"75k sqft",   util:"45.2%", action:"Watch",       cls:"rec-watch",       note:"Government sector drag. Hybrid policy mandates shifting slowly." },
+  { city:"Los Angeles",   sqft:"110k sqft",  util:"41.7%", action:"Consolidate", cls:"rec-consolidate", note:"Declining YoY. Right-size by 20%; transition to satellite hub model." },
+  { city:"San Francisco", sqft:"185k sqft",  util:"36.9%", action:"Consolidate", cls:"rec-consolidate", note:"Structural low. Subleasing opportunity — 40–60k sqft available for sublease." },
+];
+
+// ── MARKET TABLE ─────────────────────────────────────────────────────────
+
+function statusChip(pct) {
+  if (pct >= 60) return `<span class="status-chip chip-hot"><i class="bi bi-arrow-up-circle-fill"></i> Strong</span>`;
+  if (pct >= 45) return `<span class="status-chip chip-mid"><i class="bi bi-dash-circle-fill"></i> Moderate</span>`;
+  return `<span class="status-chip chip-low"><i class="bi bi-arrow-down-circle-fill"></i> At Risk</span>`;
+}
+
+function barColor(pct) {
+  if (pct >= 60) return '#006747';
+  if (pct >= 45) return '#C5A028';
+  return '#D64045';
+}
+
+const tbody = document.getElementById('marketTableBody');
+MARKETS.forEach(m => {
+  const row = document.createElement('tr');
+  row.innerHTML = `
+    <td><span class="market-name">${m.city}</span></td>
+    <td>
+      <div class="util-bar-wrap">
+        <div class="util-bar-bg">
+          <div class="util-bar-fill" style="width:${m.current}%;background:${barColor(m.current)}"></div>
+        </div>
+        <span class="util-pct">${m.current}%</span>
+      </div>
+    </td>
+    <td>${statusChip(m.current)}</td>
+  `;
+  tbody.appendChild(row);
+});
+
+// ── PORTFOLIO RECS ────────────────────────────────────────────────────────
+
+const recsEl = document.getElementById('portfolioRecs');
+PORTFOLIO_RECS.forEach(r => {
+  recsEl.innerHTML += `
+    <div class="portfolio-row">
+      <div style="flex:1">
+        <div style="font-size:13.5px;font-weight:600;color:#111">${r.city}</div>
+        <div style="font-size:11.5px;color:#9CA3AF;margin-top:2px">${r.sqft} · ${r.util} utilized</div>
+        <div style="font-size:12px;color:#6B7280;margin-top:4px">${r.note}</div>
+      </div>
+      <div class="ms-3">
+        <span class="rec-badge ${r.cls}">${r.action}</span>
+      </div>
+    </div>
+  `;
+});
+
+// ── HEATMAP ───────────────────────────────────────────────────────────────
+
+function heatColor(pct) {
+  if (pct >= 70) return { bg: '#15803d', text: '#fff' };
+  if (pct >= 55) return { bg: '#22c55e', text: '#fff' };
+  if (pct >= 40) return { bg: '#86efac', text: '#166534' };
+  return { bg: '#dcfce7', text: '#166534' };
+}
+
+const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+const grid = document.getElementById('heatmapGrid');
+
+// Header row
+grid.innerHTML += `<div class="heatmap-header"></div>`;
+days.forEach(d => {
+  grid.innerHTML += `<div class="heatmap-header">${d}</div>`;
+});
+
+// Data rows (top 6 markets for readability)
+const heatMarkets = ["Austin","Chicago","New York","Washington DC","Los Angeles","San Francisco"];
+heatMarkets.forEach(m => {
+  grid.innerHTML += `<div class="heatmap-label">${m === "Washington DC" ? "DC" : m}</div>`;
+  DOW_DATA[m].forEach(val => {
+    const c = heatColor(val);
+    grid.innerHTML += `
+      <div class="heatmap-cell" style="background:${c.bg};color:${c.text}" title="${m} · ${val}%">
+        ${val}%
+      </div>`;
+  });
+});
+
+// ── CHARTS ───────────────────────────────────────────────────────────────
+
+Chart.defaults.font.family = 'Inter';
+Chart.defaults.color = '#9CA3AF';
+
+// 1. TREND CHART
+const trendCtx = document.getElementById('trendChart').getContext('2d');
+const trendColors = {
+  "Austin":       { line: '#006747', fill: 'rgba(0,103,71,0.08)'  },
+  "New York":     { line: '#2563EB', fill: 'rgba(37,99,235,0.06)' },
+  "Chicago":      { line: '#C5A028', fill: 'rgba(197,160,40,0.06)'},
+  "San Francisco":{ line: '#D64045', fill: 'rgba(214,64,69,0.06)' },
+};
+
+new Chart(trendCtx, {
+  type: 'line',
+  data: {
+    labels: MONTHS,
+    datasets: Object.entries(TREND_DATA).map(([city, data]) => ({
+      label: city,
+      data,
+      borderColor: trendColors[city].line,
+      backgroundColor: trendColors[city].fill,
+      fill: true,
+      tension: 0.4,
+      borderWidth: 2,
+      pointRadius: 0,
+      pointHoverRadius: 5,
+    }))
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: {
+        position: 'top',
+        labels: { boxWidth: 10, boxHeight: 10, usePointStyle: true, pointStyle: 'circle', padding: 16, font: { size: 11 } }
+      },
+      tooltip: {
+        backgroundColor: '#fff',
+        titleColor: '#111',
+        bodyColor: '#6B7280',
+        borderColor: '#E5E7EB',
+        borderWidth: 1,
+        padding: 10,
+        callbacks: {
+          label: ctx => ` ${ctx.dataset.label}: ${ctx.raw}%`
+        }
+      }
+    },
+    scales: {
+      x: {
+        grid: { display: false },
+        ticks: {
+          maxTicksLimit: 10,
+          font: { size: 10 }
+        }
+      },
+      y: {
+        min: 25, max: 85,
+        grid: { color: '#F3F4F6' },
+        ticks: { callback: v => v + '%', font: { size: 10 } }
+      }
+    }
+  }
+});
+
+// 2. BAR CHART — current utilization
+const barCtx = document.getElementById('barChart').getContext('2d');
+const sortedMarkets = [...MARKETS].sort((a,b) => b.current - a.current);
+
+new Chart(barCtx, {
+  type: 'bar',
+  data: {
+    labels: sortedMarkets.map(m => m.city === 'Washington DC' ? 'DC' : m.city.split(' ')[0]),
+    datasets: [{
+      label: 'Utilization %',
+      data: sortedMarkets.map(m => m.current),
+      backgroundColor: sortedMarkets.map(m =>
+        m.current >= 60 ? '#006747' :
+        m.current >= 45 ? '#C5A028' : '#D64045'
+      ),
+      borderRadius: 6,
+      borderSkipped: false,
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#fff',
+        titleColor: '#111',
+        bodyColor: '#6B7280',
+        borderColor: '#E5E7EB',
+        borderWidth: 1,
+        callbacks: { label: ctx => ` ${ctx.raw}%` }
+      }
+    },
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+      y: {
+        min: 0, max: 80,
+        grid: { color: '#F3F4F6' },
+        ticks: { callback: v => v + '%', font: { size: 10 } }
+      }
+    }
+  }
+});
+
+// 3. YoY CHART
+const yoyCtx = document.getElementById('yoyChart').getContext('2d');
+const yoyColors = MARKETS.map(m => m.yoy >= 0 ? '#006747' : '#D64045');
+const yoyAlpha = MARKETS.map(m => m.yoy >= 0 ? 'rgba(0,103,71,0.15)' : 'rgba(214,64,69,0.15)');
+
+new Chart(yoyCtx, {
+  type: 'bar',
+  data: {
+    labels: MARKETS.map(m => m.city === 'Washington DC' ? 'Wash. DC' : m.city),
+    datasets: [{
+      label: 'YoY Change (pp)',
+      data: MARKETS.map(m => m.yoy),
+      backgroundColor: yoyColors,
+      borderColor: yoyColors,
+      borderRadius: 5,
+      borderSkipped: false,
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#fff',
+        titleColor: '#111',
+        bodyColor: '#6B7280',
+        borderColor: '#E5E7EB',
+        borderWidth: 1,
+        callbacks: {
+          label: ctx => ` ${ctx.raw > 0 ? '+' : ''}${ctx.raw} pp vs May 2025`
+        }
+      }
+    },
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+      y: {
+        grid: { color: '#F3F4F6' },
+        ticks: { callback: v => (v > 0 ? '+' : '') + v + ' pp', font: { size: 10 } }
+      }
+    }
+  }
+});
+
+</script>
+</body>
+</html>
