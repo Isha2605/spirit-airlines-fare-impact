@@ -476,6 +476,34 @@
       padding: 10px 16px; font-size: 12px; font-weight: 600;
       display: flex; align-items: center; gap: 8px; margin-bottom: 12px;
     }
+
+    /* ── FLIGHT BACKGROUND ANIMATION ──────────── */
+    .flight-bg-wrap {
+      position: fixed; inset: 0;
+      pointer-events: none; overflow: hidden; z-index: 0;
+    }
+    .flight-row {
+      position: absolute;
+      display: flex; align-items: center;
+      animation: planeAcross linear infinite;
+    }
+    .flight-row:nth-child(1) { top: 22%; animation-duration: 16s; animation-delay: 0s; }
+    .flight-row:nth-child(2) { top: 70%; animation-duration: 22s; animation-delay: 9s; }
+    @keyframes planeAcross {
+      0%   { transform: translateX(-560px); opacity: 0; }
+      8%   { opacity: 1; }
+      90%  { opacity: 1; }
+      100% { transform: translateX(calc(100vw + 160px)); opacity: 0; }
+    }
+    .flight-trail {
+      width: 380px; height: 2px;
+      background: repeating-linear-gradient(
+        to right,
+        rgba(92,45,145,0.22) 0, rgba(92,45,145,0.22) 10px,
+        transparent 10px, transparent 22px
+      );
+    }
+    .flight-plane-icon { font-size: 20px; color: rgba(92,45,145,0.32); margin-left: 6px; }
   </style>
 </head>
 
@@ -781,7 +809,20 @@
 
       <!-- ══ ROUTE ADVISOR VIEW ══════════════════ -->
       <div id="advisor-view" style="display:none">
-        <div style="max-width:680px; margin:0 auto; padding-bottom:40px;">
+
+        <!-- Flying planes background -->
+        <div class="flight-bg-wrap" aria-hidden="true">
+          <div class="flight-row">
+            <div class="flight-trail"></div>
+            <span class="flight-plane-icon">✈</span>
+          </div>
+          <div class="flight-row">
+            <div class="flight-trail"></div>
+            <span class="flight-plane-icon">✈</span>
+          </div>
+        </div>
+
+        <div style="max-width:680px; margin:0 auto; padding-bottom:40px; position:relative; z-index:1;">
 
           <!-- Hero with animated plane -->
           <div class="advisor-hero">
