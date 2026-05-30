@@ -504,6 +504,18 @@
       );
     }
     .flight-plane-icon { font-size: 20px; color: rgba(92,45,145,0.32); margin-left: 6px; }
+
+    /* ── TYPING CURSOR ──────────────────────────── */
+    .typing-cursor {
+      display: inline-block; width: 2px; height: 1em;
+      background: rgba(255,255,255,0.75); margin-left: 2px;
+      vertical-align: text-bottom;
+      animation: cursorBlink 0.65s step-end infinite;
+    }
+    @keyframes cursorBlink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0; }
+    }
   </style>
 </head>
 
@@ -1249,10 +1261,41 @@ function findRoute(query) {
   return routes.find(r => codes.some(c => r.route.includes(c))) || null;
 }
 
-function renderRecText(text) {
-  return text.split('\n')
-    .map(l => l.trim()).filter(l => l.length > 0)
-    .map(l => `<p>${l}</p>`).join('');
+function typeRecText(element, text) {
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  element.innerHTML = '';
+
+  const cursor = document.createElement('span');
+  cursor.className = 'typing-cursor';
+  element.appendChild(cursor);
+
+  let lineIdx = 0, charIdx = 0;
+
+  function tick() {
+    if (lineIdx >= lines.length) { cursor.remove(); return; }
+
+    let paras = element.querySelectorAll('p');
+    if (paras.length <= lineIdx) {
+      const p = document.createElement('p');
+      element.insertBefore(p, cursor);
+      paras = element.querySelectorAll('p');
+    }
+
+    const currentP = paras[lineIdx];
+    const line = lines[lineIdx];
+
+    if (charIdx < line.length) {
+      currentP.textContent += line[charIdx];
+      charIdx++;
+      setTimeout(tick, 16);
+    } else {
+      lineIdx++;
+      charIdx = 0;
+      setTimeout(tick, 150);
+    }
+  }
+
+  tick();
 }
 
 function showSpiritResult(r, recommendation) {
@@ -1269,7 +1312,7 @@ function showSpiritResult(r, recommendation) {
   const s = r.pct >= 0 ? '+' : '';
   document.getElementById('ar-abs').innerHTML = `<span style="color:${color}">${s}$${Math.abs(r.abs).toFixed(0)}</span>`;
   document.getElementById('ar-pct').innerHTML = `<span style="color:${color}">${s}${r.pct}%</span>`;
-  document.getElementById('ar-recommendation').innerHTML = renderRecText(recommendation);
+  typeRecText(document.getElementById('ar-recommendation'), recommendation);
 
   document.getElementById('advisor-result').style.display = 'block';
 }
@@ -1277,7 +1320,7 @@ function showSpiritResult(r, recommendation) {
 function showGeneralResult(recommendation) {
   document.getElementById('advisor-loading').style.display = 'none';
   document.getElementById('advisor-result').style.display = 'none';
-  document.getElementById('ar-general-recommendation').innerHTML = renderRecText(recommendation);
+  typeRecText(document.getElementById('ar-general-recommendation'), recommendation);
   document.getElementById('advisor-general-result').style.display = 'block';
 }
 
