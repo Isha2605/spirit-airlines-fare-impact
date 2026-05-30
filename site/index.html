@@ -1211,6 +1211,13 @@ function findRoute(query) {
   });
 
   if (!codes.length) return null;
+
+  // If query has 2+ codes (looks like a specific route), require ALL to match
+  if (codes.length >= 2) {
+    return routes.find(r => codes.every(c => r.route.includes(c))) || null;
+  }
+
+  // Single city/code: return first matching route
   return routes.find(r => codes.some(c => r.route.includes(c))) || null;
 }
 
