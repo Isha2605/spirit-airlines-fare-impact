@@ -393,59 +393,89 @@
     .verdict-card .vnote { font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 8px; }
 
     /* ── ROUTE ADVISOR ──────────────────────────── */
-    .advisor-banner {
-      background: linear-gradient(90deg, #1A0A30 0%, #3B1A6B 50%, #1A0A30 100%);
-      border-radius: 12px; padding: 8px 14px; display: flex; align-items: center;
-      gap: 12px; margin-bottom: 12px; border: 1px solid rgba(255,215,0,0.2);
+    .advisor-hero { text-align: center; padding: 36px 0 24px; }
+    .advisor-plane {
+      font-size: 54px; display: inline-block;
+      animation: advisorFloat 2.8s ease-in-out infinite;
     }
-    .advisor-banner .icon { font-size: 20px; }
-    .advisor-banner h4 { color: var(--spirit-yellow); font-size: 12px; font-weight: 700; margin: 0 0 1px; }
-    .advisor-banner p  { color: rgba(255,255,255,0.65); font-size: 10px; margin: 0; }
-
-    .advisor-input-row { display: flex; gap: 10px; align-items: center; }
-    .advisor-input-row .form-control { flex: 1; font-size: 14px; }
-
-    .advisor-btn {
-      background: var(--spirit-purple); color: #fff; border: none;
-      padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 600;
-      white-space: nowrap; cursor: pointer; transition: background 0.2s;
+    @keyframes advisorFloat {
+      0%, 100% { transform: translateY(0) rotate(-8deg); }
+      50%       { transform: translateY(-18px) rotate(7deg); }
     }
-    .advisor-btn:hover:not(:disabled) { background: var(--spirit-purple-lt); }
-    .advisor-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+    .advisor-hero-title { font-size: 26px; font-weight: 800; color: var(--spirit-purple-dk); margin: 14px 0 6px; }
+    .advisor-hero-sub   { font-size: 13px; color: var(--text-muted); margin: 0; }
 
-    .advisor-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+    .advisor-form-card  { padding: 28px 32px; }
+    .advisor-form-label {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.8px; color: var(--text-muted); display: block; margin-bottom: 8px;
+    }
+    .advisor-form-input {
+      width: 100%; font-size: 15px; padding: 13px 16px; border-radius: 10px;
+      border: 2px solid var(--border-color); transition: border-color 0.2s;
+      font-family: 'Inter', sans-serif; color: var(--text-main); background: #fff;
+    }
+    .advisor-form-input:focus { border-color: var(--spirit-purple); box-shadow: 0 0 0 3px rgba(92,45,145,0.1); outline: none; }
+    .advisor-submit-btn {
+      width: 100%; margin-top: 12px; background: var(--spirit-purple); color: #fff;
+      border: none; padding: 13px; border-radius: 10px; font-size: 14px; font-weight: 700;
+      cursor: pointer; transition: background 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      font-family: 'Inter', sans-serif;
+    }
+    .advisor-submit-btn:hover:not(:disabled) { background: var(--spirit-purple-lt); }
+    .advisor-submit-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    .advisor-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 14px; }
     .advisor-chip {
       background: rgba(92,45,145,0.08); color: var(--spirit-purple);
       border: 1px solid rgba(92,45,145,0.2); border-radius: 20px;
-      padding: 3px 10px; font-size: 11px; font-weight: 600; cursor: pointer;
-      transition: all 0.15s;
+      padding: 4px 12px; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.15s;
     }
     .advisor-chip:hover { background: var(--spirit-purple); color: #fff; }
 
+    .advisor-loading-plane {
+      font-size: 42px; display: inline-block;
+      animation: advisorTakeoff 0.85s ease-in-out infinite alternate;
+    }
+    @keyframes advisorTakeoff {
+      0%   { transform: translateX(-22px) translateY(6px) rotate(0deg); opacity: 0.5; }
+      100% { transform: translateX(22px) translateY(-12px) rotate(18deg); opacity: 1; }
+    }
+
     .advisor-stat-card {
-      background: var(--body-bg); border-radius: 10px; padding: 12px 14px;
+      background: var(--body-bg); border-radius: 10px; padding: 14px 16px;
       border: 1px solid var(--border-color); text-align: center;
     }
-    .asc-label { font-size: 9.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); margin-bottom: 4px; }
-    .asc-value { font-size: 20px; font-weight: 800; color: var(--text-main); line-height: 1.1; }
-    .asc-sub   { font-size: 9.5px; color: var(--text-muted); margin-top: 2px; }
+    .asc-label { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); margin-bottom: 5px; }
+    .asc-value { font-size: 22px; font-weight: 800; color: var(--text-main); line-height: 1.1; }
+    .asc-sub   { font-size: 9.5px; color: var(--text-muted); margin-top: 3px; }
 
     .advisor-rec-card {
       background: linear-gradient(135deg, #1A0A30 0%, #2A1550 100%);
-      border-radius: 10px; padding: 16px 18px;
+      border-radius: 12px; padding: 20px 24px;
       border: 1px solid rgba(255,215,0,0.15);
     }
     .advisor-rec-header {
       font-size: 11px; font-weight: 700; color: var(--spirit-yellow);
-      text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px;
+      text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 16px;
       display: flex; align-items: center; gap: 6px;
     }
-    .advisor-rec-text { font-size: 13.5px; color: rgba(255,255,255,0.9); line-height: 1.65; }
+    .advisor-rec-text { font-size: 13.5px; color: rgba(255,255,255,0.9); line-height: 1.75; }
+    .advisor-rec-text p { margin: 0 0 12px; }
+    .advisor-rec-text p:last-child { margin: 0; }
 
-    .advisor-notfound {
-      text-align: center; padding: 32px 20px; color: var(--text-muted);
+    .advisor-spirit-badge {
+      font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 4px;
+      background: rgba(92,45,145,0.1); color: var(--spirit-purple);
+      text-transform: uppercase; letter-spacing: 0.5px;
     }
-    .advisor-notfound i { font-size: 36px; display: block; margin-bottom: 10px; }
+    .advisor-general-notice {
+      background: rgba(251,140,0,0.08); color: #E65100;
+      border: 1px solid rgba(251,140,0,0.2); border-radius: 10px;
+      padding: 10px 16px; font-size: 12px; font-weight: 600;
+      display: flex; align-items: center; gap: 8px; margin-bottom: 12px;
+    }
   </style>
 </head>
 
@@ -751,97 +781,97 @@
 
       <!-- ══ ROUTE ADVISOR VIEW ══════════════════ -->
       <div id="advisor-view" style="display:none">
+        <div style="max-width:680px; margin:0 auto; padding-bottom:40px;">
 
-        <div class="advisor-banner">
-          <div class="icon">🤖</div>
-          <div>
-            <h4>Route Advisor — Powered by Claude</h4>
-            <p>Search any Spirit route by code or city. Get fare impact data and an AI recommendation instantly.</p>
+          <!-- Hero with animated plane -->
+          <div class="advisor-hero">
+            <div class="advisor-plane">✈</div>
+            <div class="advisor-hero-title">Route Advisor</div>
+            <div class="advisor-hero-sub">Ask about any route — Spirit or otherwise. Get fare data + AI travel advice.</div>
           </div>
-        </div>
 
-        <div class="chart-card mb-3">
-          <div class="section-header">
-            <div class="section-title">Ask About a Route</div>
-          </div>
-          <div class="advisor-input-row">
-            <input type="text" id="advisorInput" class="form-control"
-              placeholder="Try: DTW-MCO, Las Vegas to Atlanta, FLL routes..." />
-            <button id="advisorBtn" class="advisor-btn">
-              <i class="bi bi-send-fill"></i> Ask
+          <!-- Form card -->
+          <div class="chart-card advisor-form-card">
+            <label class="advisor-form-label" for="advisorInput">Enter a route or destination</label>
+            <input type="text" id="advisorInput" class="advisor-form-input"
+              placeholder="e.g. DTW-MCO, JFK-LAX, Las Vegas to Atlanta..." />
+            <button id="advisorBtn" class="advisor-submit-btn">
+              <i class="bi bi-send-fill"></i> Get Recommendation
             </button>
-          </div>
-          <div class="advisor-chips">
-            <span class="advisor-chip" onclick="setAdvisorQuery('DTW-MCO')">DTW-MCO</span>
-            <span class="advisor-chip" onclick="setAdvisorQuery('LAS-ATL')">LAS-ATL</span>
-            <span class="advisor-chip" onclick="setAdvisorQuery('FLL-LGA')">FLL-LGA</span>
-            <span class="advisor-chip" onclick="setAdvisorQuery('ATL-FLL')">ATL-FLL</span>
-            <span class="advisor-chip" onclick="setAdvisorQuery('Las Vegas')">Las Vegas</span>
-          </div>
-        </div>
-
-        <!-- Loading -->
-        <div id="advisor-loading" style="display:none" class="chart-card text-center py-4">
-          <div class="spinner-border" style="color:var(--spirit-purple)" role="status"></div>
-          <div class="mt-2" style="font-size:13px; color:var(--text-muted)">Analyzing route data...</div>
-        </div>
-
-        <!-- Not found -->
-        <div id="advisor-notfound" style="display:none" class="chart-card">
-          <div class="advisor-notfound">
-            <i class="bi bi-search"></i>
-            <div style="font-size:14px; font-weight:600;">No Spirit route found</div>
-            <div style="font-size:12px; margin-top:4px;">Try an airport code (e.g. DTW-MCO) or a city name (e.g. Las Vegas).</div>
-          </div>
-        </div>
-
-        <!-- Result -->
-        <div id="advisor-result" style="display:none" class="chart-card">
-          <div class="d-flex align-items-center gap-2 flex-wrap mb-3">
-            <span class="route-badge" id="ar-route" style="font-size:15px; padding:5px 12px;"></span>
-            <span id="ar-carrier"></span>
-            <span id="ar-impact"></span>
+            <div class="advisor-chips">
+              <span class="advisor-chip" onclick="setAdvisorQuery('DTW-MCO')">DTW-MCO</span>
+              <span class="advisor-chip" onclick="setAdvisorQuery('LAS-ATL')">LAS-ATL</span>
+              <span class="advisor-chip" onclick="setAdvisorQuery('FLL-LGA')">FLL-LGA</span>
+              <span class="advisor-chip" onclick="setAdvisorQuery('JFK-LAX')">JFK-LAX</span>
+              <span class="advisor-chip" onclick="setAdvisorQuery('Las Vegas')">Las Vegas</span>
+            </div>
           </div>
 
-          <div class="row g-2 mb-3">
-            <div class="col-6 col-md-3">
-              <div class="advisor-stat-card">
-                <div class="asc-label">Spirit Fare (2025)</div>
-                <div class="asc-value" id="ar-bts"></div>
-                <div class="asc-sub">BTS avg</div>
+          <!-- Loading -->
+          <div id="advisor-loading" style="display:none" class="chart-card text-center py-4 mt-3">
+            <div class="advisor-loading-plane">✈</div>
+            <div class="mt-2" style="font-size:13px; color:var(--text-muted)">Analyzing route...</div>
+          </div>
+
+          <!-- Spirit route result -->
+          <div id="advisor-result" style="display:none" class="mt-3">
+            <div class="chart-card mb-3">
+              <div class="d-flex align-items-center gap-2 flex-wrap mb-3">
+                <span class="route-badge" id="ar-route" style="font-size:15px; padding:5px 12px;"></span>
+                <span id="ar-carrier"></span>
+                <span id="ar-impact"></span>
+                <span class="advisor-spirit-badge">Spirit Route</span>
+              </div>
+              <div class="row g-2">
+                <div class="col-6 col-sm-3">
+                  <div class="advisor-stat-card">
+                    <div class="asc-label">Spirit Fare (2025)</div>
+                    <div class="asc-value" id="ar-bts"></div>
+                    <div class="asc-sub">BTS avg</div>
+                  </div>
+                </div>
+                <div class="col-6 col-sm-3">
+                  <div class="advisor-stat-card">
+                    <div class="asc-label">Current Fare</div>
+                    <div class="asc-value" id="ar-gf"></div>
+                    <div class="asc-sub">May 2026</div>
+                  </div>
+                </div>
+                <div class="col-6 col-sm-3">
+                  <div class="advisor-stat-card">
+                    <div class="asc-label">$ Change</div>
+                    <div class="asc-value" id="ar-abs"></div>
+                    <div class="asc-sub">one-way</div>
+                  </div>
+                </div>
+                <div class="col-6 col-sm-3">
+                  <div class="advisor-stat-card">
+                    <div class="asc-label">% Change</div>
+                    <div class="asc-value" id="ar-pct"></div>
+                    <div class="asc-sub">vs Spirit</div>
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="col-6 col-md-3">
-              <div class="advisor-stat-card">
-                <div class="asc-label">Current Fare</div>
-                <div class="asc-value" id="ar-gf"></div>
-                <div class="asc-sub">May 2026</div>
-              </div>
-            </div>
-            <div class="col-6 col-md-3">
-              <div class="advisor-stat-card">
-                <div class="asc-label">$ Change</div>
-                <div class="asc-value" id="ar-abs"></div>
-                <div class="asc-sub">one-way</div>
-              </div>
-            </div>
-            <div class="col-6 col-md-3">
-              <div class="advisor-stat-card">
-                <div class="asc-label">% Change</div>
-                <div class="asc-value" id="ar-pct"></div>
-                <div class="asc-sub">vs Spirit</div>
-              </div>
+            <div class="advisor-rec-card">
+              <div class="advisor-rec-header"><i class="bi bi-robot"></i> AI Recommendation</div>
+              <div id="ar-recommendation" class="advisor-rec-text"></div>
             </div>
           </div>
 
-          <div class="advisor-rec-card">
-            <div class="advisor-rec-header">
-              <i class="bi bi-robot"></i> AI Recommendation
+          <!-- General (non-Spirit) route result -->
+          <div id="advisor-general-result" style="display:none" class="mt-3">
+            <div class="advisor-general-notice">
+              <i class="bi bi-info-circle-fill"></i>
+              Not one of Spirit's top 20 routes — here's general travel advice based on current market conditions.
             </div>
-            <div id="ar-recommendation" class="advisor-rec-text"></div>
+            <div class="advisor-rec-card">
+              <div class="advisor-rec-header"><i class="bi bi-robot"></i> AI Recommendation</div>
+              <div id="ar-general-recommendation" class="advisor-rec-text"></div>
+            </div>
           </div>
+
         </div>
-
       </div><!-- /advisor-view -->
 
     </div><!-- /page-body -->
@@ -1184,9 +1214,15 @@ function findRoute(query) {
   return routes.find(r => codes.some(c => r.route.includes(c))) || null;
 }
 
-function showAdvisorResult(r, recommendation) {
+function renderRecText(text) {
+  return text.split('\n')
+    .map(l => l.trim()).filter(l => l.length > 0)
+    .map(l => `<p>${l}</p>`).join('');
+}
+
+function showSpiritResult(r, recommendation) {
   document.getElementById('advisor-loading').style.display = 'none';
-  document.getElementById('advisor-notfound').style.display = 'none';
+  document.getElementById('advisor-general-result').style.display = 'none';
 
   document.getElementById('ar-route').textContent = r.route;
   document.getElementById('ar-carrier').innerHTML = carrierTag(r.carrier);
@@ -1198,9 +1234,16 @@ function showAdvisorResult(r, recommendation) {
   const s = r.pct >= 0 ? '+' : '';
   document.getElementById('ar-abs').innerHTML = `<span style="color:${color}">${s}$${Math.abs(r.abs).toFixed(0)}</span>`;
   document.getElementById('ar-pct').innerHTML = `<span style="color:${color}">${s}${r.pct}%</span>`;
-  document.getElementById('ar-recommendation').textContent = recommendation;
+  document.getElementById('ar-recommendation').innerHTML = renderRecText(recommendation);
 
   document.getElementById('advisor-result').style.display = 'block';
+}
+
+function showGeneralResult(recommendation) {
+  document.getElementById('advisor-loading').style.display = 'none';
+  document.getElementById('advisor-result').style.display = 'none';
+  document.getElementById('ar-general-recommendation').innerHTML = renderRecText(recommendation);
+  document.getElementById('advisor-general-result').style.display = 'block';
 }
 
 async function runAdvisor() {
@@ -1208,27 +1251,25 @@ async function runAdvisor() {
   if (!query) return;
 
   document.getElementById('advisor-result').style.display = 'none';
-  document.getElementById('advisor-notfound').style.display = 'none';
-
-  const matched = findRoute(query);
-  if (!matched) {
-    document.getElementById('advisor-notfound').style.display = 'block';
-    return;
-  }
-
+  document.getElementById('advisor-general-result').style.display = 'none';
   document.getElementById('advisor-loading').style.display = 'block';
   document.getElementById('advisorBtn').disabled = true;
+
+  const matched = findRoute(query);
 
   try {
     const resp = await fetch('/.netlify/functions/claude-advisor', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query, routeData: matched }),
+      body: JSON.stringify({ query, routeData: matched || null }),
     });
     const data = await resp.json();
-    showAdvisorResult(matched, data.recommendation || 'No recommendation returned.');
+    const rec = data.recommendation || 'No recommendation returned.';
+    matched ? showSpiritResult(matched, rec) : showGeneralResult(rec);
   } catch (err) {
-    showAdvisorResult(matched, 'Could not load recommendation. Please try again.');
+    matched
+      ? showSpiritResult(matched, 'Could not load recommendation. Please try again.')
+      : showGeneralResult('Could not load recommendation. Please try again.');
   } finally {
     document.getElementById('advisor-loading').style.display = 'none';
     document.getElementById('advisorBtn').disabled = false;

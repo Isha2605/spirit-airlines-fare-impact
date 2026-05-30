@@ -5,20 +5,34 @@ exports.handler = async (event) => {
 
   try {
     const { query, routeData } = JSON.parse(event.body);
+    const s = (n) => n >= 0 ? '+' : '';
 
-    const sign = (n) => n >= 0 ? '+' : '';
+    let prompt;
 
-    const prompt = `You are a route advisor for the Spirit Airlines Fare Impact Dashboard. Spirit Airlines shut down on May 2, 2026.
+    if (routeData) {
+      prompt = `You are a route advisor for the Spirit Airlines Fare Impact Dashboard. Spirit Airlines shut down May 2, 2026.
 
-User asked about: "${query}"
 Route: ${routeData.route}
-Spirit avg fare (2025 BTS data): $${routeData.bts.toFixed(0)}
+Spirit avg fare (BTS 2025): $${routeData.bts.toFixed(0)}
 Current fare (May 2026): $${routeData.gf.toFixed(0)}
-Change: ${sign(routeData.pct)}${routeData.pct}% (${sign(routeData.abs)}$${Math.abs(routeData.abs).toFixed(0)})
+Change: ${s(routeData.pct)}${routeData.pct}% (${s(routeData.abs)}$${Math.abs(routeData.abs).toFixed(0)})
 Now served by: ${routeData.carrier}
 Impact tier: ${routeData.impact}
 
-Write 2-3 sentences of plain English advice for a traveler on this route. Mention: (1) whether fares went up or down vs Spirit and by how much, (2) who serves it now and if that's good or bad news, (3) one actionable tip. Be direct, specific, and conversational. No bullet points.`;
+Write exactly 3 lines of advice. Each line is one sentence starting with an emoji. No intro text, no labels, just the 3 lines:
+📊 [Fare impact — use the exact numbers, say whether it went up or down and by how much]
+✈️ [Who serves it now and what that means for travelers — is this good or bad news?]
+💡 [One concrete actionable tip — be specific, not generic]`;
+    } else {
+      prompt = `You are a route advisor for the Spirit Airlines Fare Impact Dashboard. Spirit Airlines shut down May 2, 2026.
+
+A user asked about: "${query}"
+
+This route is not in Spirit's top 20, so there is no specific before/after data. Write exactly 3 lines of advice. Each line is one sentence starting with an emoji. No intro text, no labels, just the 3 lines:
+📊 [General fare context for this route post-Spirit-shutdown — what the broader market looks like]
+✈️ [Which major carriers typically serve this route and how competitive it is]
+💡 [One concrete actionable tip for booking this route today]`;
+    }
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -29,14 +43,13 @@ Write 2-3 sentences of plain English advice for a traveler on this route. Mentio
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 300,
+        max_tokens: 350,
         messages: [{ role: 'user', content: prompt }],
       }),
     });
 
     if (!response.ok) {
-      const err = await response.text();
-      return { statusCode: 500, body: JSON.stringify({ error: `API error: ${err}` }) };
+      return { statusCode: 500, body: JSON.stringify({ error: 'API error' }) };
     }
 
     const data = await response.json();
@@ -46,9 +59,6 @@ Write 2-3 sentences of plain English advice for a traveler on this route. Mentio
       body: JSON.stringify({ recommendation: data.content[0].text }),
     };
   } catch (err) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: err.message }),
-    };
+    return { statusCode: 500, body: JSON.stringify({ error: err.message }) };
   }
 };
