@@ -1252,10 +1252,15 @@ function findRoute(query) {
 
   if (!codes.length) return null;
 
-  // If query has 2+ codes (looks like a specific route), require ALL to match
-  if (codes.length >= 2) {
-    return routes.find(r => codes.every(c => r.route.includes(c))) || null;
+  // If query looks like a two-point route (has "to"/"from" or a dash), require BOTH ends to match
+  const isTwoPoint = /\bto\b|\bfrom\b/.test(ql) || query.includes('-');
+  if (isTwoPoint) {
+    if (codes.length >= 2) return routes.find(r => codes.every(c => r.route.includes(c))) || null;
+    return null; // one end not a Spirit airport → general advice
   }
+
+  // 2 codes without directional word → require both
+  if (codes.length >= 2) return routes.find(r => codes.every(c => r.route.includes(c))) || null;
 
   // Single city/code: return first matching route
   return routes.find(r => codes.some(c => r.route.includes(c))) || null;
